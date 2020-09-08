@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="colorAccent">#FBA804</color>
+    <color name="colorPrimary">#27337D</color>
+    <color name="colorPrimaryDark">#212B66</color>
+    <color name="colorPrimaryOrange">#FF9700</color>
+
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorCrimson">#EEEEEE</color>
+
+    <color name="greyTick">#666666</color>
+    <color name="blueTick">#6666FF</color>
+    <color name="cancelled">#ffbb33</color>
+    <color name="danger">#CE0219</color>
+
+    <!-- colors for button style -->
+
+    <color name="gradient_start_color">#131725</color>
+    <color name="gradient_end_color">#000000</color>
+
+
+    <!-- colors for tab and screent text -->
+
+    <color name="tab_indicator_gray">#c0c0c0</color>
+
+</resources>

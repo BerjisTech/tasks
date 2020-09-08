@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "896341479811",
+    "firebase_url": "https://tasks-6b231.firebaseio.com",
+    "project_id": "tasks-6b231",
+    "storage_bucket": "tasks-6b231.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:896341479811:android:efbd4c3afd79953fc226b6",
+        "android_client_info": {
+          "package_name": "tech.berjis.tasks"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "896341479811-g4ot89kgjft2hkk65jr8ukam481ohher.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "tech.berjis.tasks",
+            "certificate_hash": "cab4161d66aac001d1909541784ffa50b1aa4a4e"
+          }
+        },
+        {
+          "client_id": "896341479811-nf36j88sin43kr16k3cc5lntsnoqde74.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtYMf2-Foay1MRUSnwVXkz97XKqghEzIU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "896341479811-nf36j88sin43kr16k3cc5lntsnoqde74.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
