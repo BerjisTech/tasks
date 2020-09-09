@@ -14,7 +14,7 @@
 
         <ImageView
             android:layout_width="match_parent"
-            android:layout_height="170dp"
+            android:layout_height="190dp"
             android:src="@drawable/classic_top_background"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -47,16 +47,16 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center"
-                    android:text="Tasks"
+                    android:text="Wakazy"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@id/camera"
+                    app:layout_constraintBottom_toBottomOf="@id/search"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/camera" />
+                    app:layout_constraintTop_toTopOf="@id/search" />
 
                 <ImageView
-                    android:id="@+id/video"
+                    android:id="@+id/home"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_marginStart="20dp"
@@ -64,12 +64,12 @@
                     android:layout_marginTop="10dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:src="@drawable/video"
+                    android:src="@drawable/home_active"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
-                    android:id="@+id/search"
+                    android:id="@+id/chats"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_marginStart="20dp"
@@ -77,8 +77,8 @@
                     android:layout_marginTop="10dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:src="@drawable/search"
-                    app:layout_constraintStart_toEndOf="@id/video"
+                    android:src="@drawable/chat"
+                    app:layout_constraintStart_toEndOf="@id/home"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
@@ -91,11 +91,11 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:src="@drawable/notifications"
-                    app:layout_constraintEnd_toStartOf="@id/camera"
+                    app:layout_constraintEnd_toStartOf="@id/search"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
-                    android:id="@+id/camera"
+                    android:id="@+id/search"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_marginTop="10dp"
@@ -103,7 +103,7 @@
                     android:layout_marginRight="20dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:src="@drawable/camera"
+                    android:src="@drawable/search"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -115,7 +115,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginBottom="10dp"
-            app:layout_constraintBottom_toTopOf="@+id/chats"
+            app:layout_constraintBottom_toTopOf="@+id/services"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -139,13 +139,13 @@
                     <View
                         android:id="@+id/emptyView"
                         android:layout_width="0dp"
-                        android:layout_height="90dp"
+                        android:layout_height="80dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/iconsRecycler"
+                        android:id="@+id/categoryRecycler"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
@@ -163,7 +163,7 @@
                         android:orientation="vertical"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/iconsRecycler"
+                        app:layout_constraintTop_toBottomOf="@id/categoryRecycler"
                         app:layout_goneMarginTop="10dp" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -172,21 +172,21 @@
 
 
         <ImageView
-            android:id="@+id/home"
+            android:id="@+id/services"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginBottom="20dp"
-            android:src="@drawable/home_active"
+            android:src="@drawable/jobs_settings"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/chats"
+            app:layout_constraintEnd_toStartOf="@id/orders"
             app:layout_constraintStart_toStartOf="parent" />
 
         <ImageView
-            android:id="@+id/chats"
+            android:id="@+id/orders"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginBottom="20dp"
-            android:src="@drawable/chat"
+            android:src="@drawable/jobs"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -199,7 +199,7 @@
             android:src="@drawable/profile"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/chats" />
+            app:layout_constraintStart_toEndOf="@id/orders" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
