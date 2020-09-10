@@ -1,24 +1,38 @@
 package tech.berjis.tasks;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.text.HtmlCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.squareup.picasso.Picasso;
+
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -28,9 +42,11 @@ public class FeedActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseFirestoreSettings firestoreSettings;
     private FirestoreRecyclerAdapter<Categories, FeedActivity.CategoriesViewHolder> adapter;
+    private FirestoreRecyclerAdapter<Services, FeedActivity.ServicesViewHolder> s_adapter;
 
-    RecyclerView categoryRecycler;
-    ImageView search;
+    RecyclerView categoryRecycler, postsRecycler;
+    ImageView search, services, orders, profile, chats, notifications;
+    String UID, currency_symbol = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +62,16 @@ public class FeedActivity extends AppCompatActivity {
         firestoreSettings = new FirebaseFirestoreSettings.Builder()
                 .setPersistenceEnabled(true).build();
         firestore.setFirestoreSettings(firestoreSettings);
+        UID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
 
         categoryRecycler = findViewById(R.id.categoryRecycler);
+        postsRecycler = findViewById(R.id.postsRecycler);
         search = findViewById(R.id.search);
+        services = findViewById(R.id.services);
+        orders = findViewById(R.id.orders);
+        profile = findViewById(R.id.profile);
+        chats = findViewById(R.id.chats);
+        notifications = findViewById(R.id.notifications);
 
         staticOnClick();
         loadWorkers();
@@ -59,6 +82,36 @@ public class FeedActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(FeedActivity.this, WhichTaskActivity.class));
+            }
+        });
+        services.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(FeedActivity.this, MyServicesActivity.class));
+            }
+        });
+        orders.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(FeedActivity.this, MyOrdersActivity.class));
+            }
+        });
+        profile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(FeedActivity.this, ProfileActivity.class));
+            }
+        });
+        chats.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(FeedActivity.this, DMsActivity.class));
+            }
+        });
+        notifications.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(FeedActivity.this, NotificationsActivity.class));
             }
         });
     }
@@ -79,7 +132,22 @@ public class FeedActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        loaduserdata();
+        loadcategories();
+    }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (adapter != null) {
+            adapter.stopListening();
+        }
+        if (s_adapter != null) {
+            s_adapter.stopListening();
+        }
+    }
+
+    private void loadcategories() {
         categoryRecycler.setLayoutManager(new LinearLayoutManager(FeedActivity.this, RecyclerView.HORIZONTAL, false));
         FirestoreRecyclerOptions<Categories> options = new FirestoreRecyclerOptions.Builder<Categories>()
                 .setQuery(firestore.collection("Categories"), Categories.class)
@@ -103,14 +171,47 @@ public class FeedActivity extends AppCompatActivity {
         adapter.startListening();
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (adapter != null) {
-            adapter.stopListening();
-        }
+    private void loaduserdata() {
+        UID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
+        firestore.collection("Users")
+                .document(UID)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        String user_type = Objects.requireNonNull(Objects.requireNonNull(documentSnapshot.getData()).get("user_type")).toString();
+                        currency_symbol = Objects.requireNonNull(Objects.requireNonNull(documentSnapshot.getData()).get("currency_symbol")).toString();
+                        loadServices();
+                        if (user_type.equals("tasker")) {
+                            services.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
     }
 
+    private void loadServices() {
+        postsRecycler.setLayoutManager(new LinearLayoutManager(FeedActivity.this, RecyclerView.HORIZONTAL, false));
+        FirestoreRecyclerOptions<Services> options = new FirestoreRecyclerOptions.Builder<Services>()
+                .setQuery(firestore.collection("Services"), Services.class)
+                .build();
+
+        s_adapter = new FirestoreRecyclerAdapter<Services, FeedActivity.ServicesViewHolder>(options) {
+
+            @Override
+            protected void onBindViewHolder(@NonNull FeedActivity.ServicesViewHolder ServicesViewHolder, int i, @NonNull Services Services) {
+                ServicesViewHolder.setServices(Services.getService_id(), Services.getCategory(), Services.getLocation(), Services.getPrice(), Services.getRequests(), Services.getText(), Services.getTime(), Services.getUser(), currency_symbol, firestore);
+            }
+
+            @NonNull
+            @Override
+            public FeedActivity.ServicesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.service, parent, false);
+                return new FeedActivity.ServicesViewHolder(view);
+            }
+        };
+        postsRecycler.setAdapter(s_adapter);
+        s_adapter.startListening();
+    }
 
     static class CategoriesViewHolder extends RecyclerView.ViewHolder {
         private View view;
@@ -141,4 +242,79 @@ public class FeedActivity extends AppCompatActivity {
             });
         }
     }
+
+    static class ServicesViewHolder extends RecyclerView.ViewHolder {
+        private View view;
+
+        ServicesViewHolder(View itemView) {
+            super(itemView);
+            view = itemView;
+        }
+
+        void setServices(final String Service_id,
+                         final String Category,
+                         final String Location,
+                         final long Price,
+                         final long Requests,
+                         final String Text,
+                         final long Time,
+                         String User,
+                         String currency_symbol,
+                         FirebaseFirestore firestore) {
+
+            final TextView serviceTitle = view.findViewById(R.id.serviceTitle);
+            final ImageView mainImage = view.findViewById(R.id.mainImage);
+            final TextView servicePrice = view.findViewById(R.id.servicePrice);
+            final TextView serviceDescription = view.findViewById(R.id.serviceDescription);
+
+            serviceTitle.setText(Category);
+            servicePrice.setText(currency_symbol + " " + Price);
+
+            DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+
+            dbRef.child("ServicesImages").child(Service_id).limitToFirst(1).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        for (DataSnapshot npsnapshot : dataSnapshot.getChildren()) {
+                            Glide.with(itemView.getContext()).load(Objects.requireNonNull(npsnapshot.child("image").getValue()).toString()).thumbnail(0.25f).into(mainImage);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Toast.makeText(itemView.getContext(), "Kuna shida mahali", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            firestore.collection("Users")
+                    .document(User)
+                    .get()
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            String user_name = Objects.requireNonNull(Objects.requireNonNull(documentSnapshot.getData()).get("first_name")).toString() + " " + Objects.requireNonNull(Objects.requireNonNull(documentSnapshot.getData()).get("last_name")).toString();
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                serviceDescription.setText(Html.fromHtml(user_name + " <br /><small>(" + Requests + " requests)</small>", Html.FROM_HTML_MODE_COMPACT));
+                            } else {
+                                serviceDescription.setText(Html.fromHtml(user_name + " <br /><small>(" + Requests + " requests)</small>"));
+                            }
+                        }
+                    });
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent s_i = new Intent(itemView.getContext(), MyService.class);
+                    Bundle s_b = new Bundle();
+                    s_b.putString("service", Service_id);
+                    s_i.putExtras(s_b);
+                    itemView.getContext().startActivity(s_i);
+                }
+            });
+        }
+    }
+
+
 }

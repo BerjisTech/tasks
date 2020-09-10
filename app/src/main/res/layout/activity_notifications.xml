@@ -2,29 +2,21 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/root_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FeedActivity">
+    tools:context=".NotificationsActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mainLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="190dp"
-            android:src="@drawable/classic_top_background"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <androidx.cardview.widget.CardView
+            android:id="@+id/topPanel"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:layout_marginRight="20dp"
             android:alpha="0.7"
             android:background="@color/colorWhite"
@@ -47,13 +39,13 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center"
-                    android:text="Mwakazy"
+                    android:text="Notifications"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@id/search"
+                    app:layout_constraintBottom_toBottomOf="@id/addTask"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/search" />
+                    app:layout_constraintTop_toTopOf="@id/addTask" />
 
                 <ImageView
                     android:id="@+id/home"
@@ -64,7 +56,7 @@
                     android:layout_marginTop="10dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:src="@drawable/home_active"
+                    android:src="@drawable/home"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -91,11 +83,11 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:src="@drawable/notifications"
-                    app:layout_constraintEnd_toStartOf="@id/search"
+                    app:layout_constraintEnd_toStartOf="@id/addTask"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
-                    android:id="@+id/search"
+                    android:id="@+id/addTask"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_marginTop="10dp"
@@ -103,83 +95,22 @@
                     android:layout_marginRight="20dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:src="@drawable/search"
+                    android:src="@drawable/plus"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/pageRefresh"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/ordersRecycler"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginBottom="10dp"
-            app:layout_constraintBottom_toTopOf="@+id/services"
+            app:layout_constraintBottom_toTopOf="@+id/orders"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@+id/topPanel" />
 
-            <androidx.core.widget.NestedScrollView
-                android:id="@+id/nestedScrollView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <View
-                        android:layout_width="0.001dp"
-                        android:layout_height="0.001dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent" />
-
-                    <View
-                        android:id="@+id/emptyView"
-                        android:layout_width="0dp"
-                        android:layout_height="80dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/categoryRecycler"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/emptyView" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/postsRecycler"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="15dp"
-                        android:layout_marginBottom="5dp"
-                        android:background="@color/colorWhite"
-                        android:orientation="vertical"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/categoryRecycler"
-                        app:layout_goneMarginTop="10dp" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </androidx.core.widget.NestedScrollView>
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-
-        <ImageView
-            android:id="@+id/orders"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginBottom="20dp"
-            android:src="@drawable/jobs"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/services"
-            app:layout_constraintStart_toStartOf="parent" />
 
         <ImageView
             android:id="@+id/services"
@@ -187,7 +118,16 @@
             android:layout_height="30dp"
             android:layout_marginBottom="20dp"
             android:src="@drawable/jobs_settings"
-            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/orders"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageView
+            android:id="@+id/orders"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginBottom="20dp"
+            android:src="@drawable/jobs"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -200,18 +140,16 @@
             android:src="@drawable/profile"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/services" />
+            app:layout_constraintStart_toEndOf="@id/orders" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/storyLayout"
+    <ImageView
+        android:id="@+id/preload"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorPrimary"
-        android:visibility="gone">
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        android:background="@color/colorWhite"
+        android:visibility="gone" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -24,7 +24,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppCustomTheme.NoActionBar"
         tools:replace="android:icon">
-        <activity android:name=".DMsActivity"></activity>
+        <activity android:name=".MyService"></activity>
+        <activity android:name=".NewServiceActivity" />
+        <activity android:name=".NotificationsActivity" />
+        <activity android:name=".MyServicesActivity" />
+        <activity android:name=".DMsActivity" />
         <activity android:name=".SettingsActivity" />
         <activity android:name=".EditProfileActivity" />
         <activity
