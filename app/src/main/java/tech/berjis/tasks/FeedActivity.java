@@ -190,7 +190,7 @@ public class FeedActivity extends AppCompatActivity {
     }
 
     private void loadServices() {
-        postsRecycler.setLayoutManager(new LinearLayoutManager(FeedActivity.this, RecyclerView.HORIZONTAL, false));
+        postsRecycler.setLayoutManager(new LinearLayoutManager(FeedActivity.this, RecyclerView.VERTICAL, false));
         FirestoreRecyclerOptions<Services> options = new FirestoreRecyclerOptions.Builder<Services>()
                 .setQuery(firestore.collection("Services"), Services.class)
                 .build();

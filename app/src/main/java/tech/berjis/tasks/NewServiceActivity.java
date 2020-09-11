@@ -221,7 +221,7 @@ public class NewServiceActivity extends AppCompatActivity {
                         imageList.add(l);
                     }
                     Collections.reverse(imageList);
-                    imagePagerAdapter = new ImagePagerAdapter(NewServiceActivity.this, imageList, "gallery");
+                    imagePagerAdapter = new ImagePagerAdapter(NewServiceActivity.this, imageList, "new_service");
                     imagePagerAdapter.notifyDataSetChanged();
                     imagePager.setAdapter(imagePagerAdapter);
                 }

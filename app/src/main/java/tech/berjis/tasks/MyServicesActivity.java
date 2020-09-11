@@ -136,7 +136,7 @@ public class MyServicesActivity extends AppCompatActivity {
     }
 
     private void loadServices() {
-        ordersRecycler.setLayoutManager(new LinearLayoutManager(MyServicesActivity.this, RecyclerView.HORIZONTAL, false));
+        ordersRecycler.setLayoutManager(new LinearLayoutManager(MyServicesActivity.this, RecyclerView.VERTICAL, false));
         FirestoreRecyclerOptions<Services> options = new FirestoreRecyclerOptions.Builder<Services>()
                 .setQuery(firestore.collection("Services").whereEqualTo("user", UID), Services.class)
                 .build();

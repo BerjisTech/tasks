@@ -24,13 +24,46 @@
         android:supportsRtl="true"
         android:theme="@style/AppCustomTheme.NoActionBar"
         tools:replace="android:icon">
-        <activity android:name=".MyService"></activity>
-        <activity android:name=".NewServiceActivity" />
-        <activity android:name=".NotificationsActivity" />
-        <activity android:name=".MyServicesActivity" />
-        <activity android:name=".DMsActivity" />
-        <activity android:name=".SettingsActivity" />
-        <activity android:name=".EditProfileActivity" />
+        <activity
+            android:name=".FullScreenGallery"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name=".MyService"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name=".NewServiceActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name=".NotificationsActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name=".MyServicesActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name=".DMsActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name=".SettingsActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name=".EditProfileActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden"
+            tools:ignore="LockedOrientationActivity" />
         <activity
             android:name=".MyOrdersActivity"
             android:screenOrientation="portrait"

@@ -1,6 +1,8 @@
 package tech.berjis.tasks;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +11,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -37,10 +38,10 @@ public class ImagePagerAdapter extends RecyclerView.Adapter<ImagePagerAdapter.Vi
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = null;
 
-        if (view_type.equals("new_service")){
+        if (view_type.equals("new_service") || view_type.equals("edit_service")) {
             view = mInflater.inflate(R.layout.new_post_image, parent, false);
         }
-        if (view_type.equals("gallery")){
+        if (view_type.equals("gallery")) {
             view = mInflater.inflate(R.layout.gallery_image_view, parent, false);
         }
 
@@ -48,15 +49,28 @@ public class ImagePagerAdapter extends RecyclerView.Adapter<ImagePagerAdapter.Vi
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        ImageList ld = listData.get(position);
+    public void onBindViewHolder(final ViewHolder holder, int position) {
+        final ImageList ld = listData.get(position);
 
         Picasso.get()
                 .load(ld.getImage())
+                .error(R.drawable.error_loading_image)
                 .into(holder.image);
-        
-        if (view_type.equals("new_post")) {
+
+        if (view_type.equals("edit_service")) {
             holder.delete.setVisibility(View.VISIBLE);
+        }
+        if (view_type.equals("new_service")) {
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i_i = new Intent(holder.itemView.getContext(), FullScreenGallery.class);
+                    Bundle i_b = new Bundle();
+                    i_b.putString("parent", ld.getParent_id());
+                    i_i.putExtras(i_b);
+                    holder.itemView.getContext().startActivity(i_i);
+                }
+            });
         }
     }
 
