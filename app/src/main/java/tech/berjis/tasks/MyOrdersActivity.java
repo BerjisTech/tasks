@@ -10,12 +10,23 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.storage.StorageReference;
 import com.vanniktech.emoji.EmojiEditText;
 
 import java.util.List;
+import java.util.Objects;
 
 public class MyOrdersActivity extends AppCompatActivity {
+
+    FirebaseFirestore firestore;
+    FirebaseAuth mAuth;
+    FirebaseFirestoreSettings firestoreSettings;
+    String UID;
 
     ImageView profile, services, home, chats, notifications, settings;
 
@@ -28,6 +39,13 @@ public class MyOrdersActivity extends AppCompatActivity {
     }
 
     private void init_vars() {
+        mAuth = FirebaseAuth.getInstance();
+        firestore = FirebaseFirestore.getInstance();
+        firestoreSettings = new FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true).build();
+        firestore.setFirestoreSettings(firestoreSettings);
+        UID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
+
         profile = findViewById(R.id.profile);
         services = findViewById(R.id.services);
         chats = findViewById(R.id.chats);
@@ -82,5 +100,28 @@ public class MyOrdersActivity extends AppCompatActivity {
                 startActivity(c_intent);
             }
         });
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        loaduserdata();
+    }
+
+    private void loaduserdata() {
+        UID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
+        firestore.collection("Users")
+                .document(UID)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        String user_type = Objects.requireNonNull(Objects.requireNonNull(documentSnapshot.getData()).get("user_type")).toString();
+                        if (user_type.equals("tasker")) {
+                            services.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
     }
 }

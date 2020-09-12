@@ -337,21 +337,22 @@
 
 
         <ImageView
-            android:id="@+id/services"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginBottom="20dp"
-            android:src="@drawable/jobs_settings"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/orders"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <ImageView
             android:id="@+id/orders"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginBottom="20dp"
             android:src="@drawable/jobs"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/services"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageView
+            android:id="@+id/services"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginBottom="20dp"
+            android:src="@drawable/jobs_settings"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -364,7 +365,7 @@
             android:src="@drawable/profile"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/orders" />
+            app:layout_constraintStart_toEndOf="@id/services" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

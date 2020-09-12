@@ -3,4 +3,12 @@
     <string name="reply">Reply</string>
     <string name="delete_for_me">Delete for me</string>
     <string name="delete_for_all">Delete for all</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="change_phone_number">Change Phone Number</string>
+    <string name="notifications">Notifications</string>
+    <string name="get_help">Get Help</string>
+    <string name="report_problem">Report a Problem</string>
+    <string name="terms_of_use">Terms of Use</string>
+    <string name="logout">Logout</string>
+    <string name="save_changes">Save</string>
 </resources>

@@ -1,12 +1,17 @@
 package tech.berjis.tasks;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -112,27 +117,50 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
         activateTasker.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View v) {
-                Map<String, Object> user = new HashMap<>();
-                user.put("user_type", "tasker");
+                new AlertDialog.Builder(ProfileActivity.this)
+                        .setTitle("Seller account")
+                        .setMessage(Html.fromHtml("<p>The seller account allows you to:</p>" +
+                                "<ul>" +
+                                "<li>Create services</li>" +
+                                "<li>Manage orders</li>" +
+                                "<li>Request for services like normal users</li>" +
+                                "</ul><br />" +
+                                "<hr />"))
+                        .setCancelable(false)
+                        .setPositiveButton("Proceed", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Map<String, Object> user = new HashMap<>();
+                                user.put("user_type", "tasker");
 
-                dbFire.collection("Users").document(UID).set(user, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Snackbar.make(chats, "Your tasker account has been activated", Snackbar.LENGTH_LONG)
-                                .setAction("OK", new View.OnClickListener() {
+                                dbFire.collection("Users").document(UID).set(user, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
-                                    public void onClick(View view) {
+                                    public void onSuccess(Void aVoid) {
+                                        Snackbar.make(chats, "Your tasker account has been activated", Snackbar.LENGTH_LONG)
+                                                .setAction("OK", new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View view) {
 
+                                                    }
+                                                })
+                                                .setActionTextColor(getResources().getColor(android.R.color.holo_red_light))
+                                                .show();
+                                        createTask.setVisibility(View.VISIBLE);
+                                        activateTasker.setVisibility(View.GONE);
                                     }
-                                })
-                                .setActionTextColor(getResources().getColor(android.R.color.holo_red_light))
-                                .show();
-                        createTask.setVisibility(View.VISIBLE);
-                        activateTasker.setVisibility(View.GONE);
-                    }
-                });
+                                });
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        })
+                        .show();
             }
         });
     }

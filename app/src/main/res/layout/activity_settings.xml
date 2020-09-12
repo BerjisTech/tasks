@@ -97,25 +97,245 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/chatsRecycler"
+    <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/orders"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/orders"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/topPanel" />
+        app:layout_constraintTop_toBottomOf="@+id/topPanel">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/edit_profile_txt"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="10dp"
+                android:gravity="center|start"
+                android:text="@string/edit_profile"
+                app:layout_constraintBottom_toBottomOf="@+id/edit_profile_btn"
+                app:layout_constraintEnd_toStartOf="@+id/edit_profile_btn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/edit_profile_btn" />
+
+            <ImageView
+                android:id="@+id/edit_profile_btn"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/chevron_right"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <View
+                android:id="@+id/div_1"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:background="#606060"
+                app:layout_constraintEnd_toEndOf="@id/edit_profile_btn"
+                app:layout_constraintStart_toStartOf="@id/edit_profile_txt"
+                app:layout_constraintTop_toBottomOf="@id/edit_profile_btn" />
 
 
-    <ImageView
-        android:id="@+id/services"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginBottom="20dp"
-        android:src="@drawable/jobs_settings"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/orders"
-        app:layout_constraintStart_toStartOf="parent" />
+            <TextView
+                android:id="@+id/change_phone_txt"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="10dp"
+                android:gravity="center|start"
+                android:text="@string/change_phone_number"
+                app:layout_constraintBottom_toBottomOf="@+id/change_phone_btn"
+                app:layout_constraintEnd_toStartOf="@+id/change_phone_btn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/change_phone_btn" />
+
+            <ImageView
+                android:id="@+id/change_phone_btn"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/chevron_right"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/div_1" />
+
+            <View
+                android:id="@+id/div_2"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:background="#606060"
+                app:layout_constraintEnd_toEndOf="@id/change_phone_btn"
+                app:layout_constraintStart_toStartOf="@id/change_phone_txt"
+                app:layout_constraintTop_toBottomOf="@id/change_phone_btn" />
+
+            <TextView
+                android:id="@+id/notifications_txt"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="10dp"
+                android:gravity="center|start"
+                android:text="@string/notifications"
+                app:layout_constraintBottom_toBottomOf="@+id/notifications_btn"
+                app:layout_constraintEnd_toStartOf="@+id/notifications_btn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/notifications_btn" />
+
+            <ImageView
+                android:id="@+id/notifications_btn"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/chevron_right"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/div_2" />
+
+            <View
+                android:id="@+id/div_3"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:background="#606060"
+                app:layout_constraintEnd_toEndOf="@id/notifications_btn"
+                app:layout_constraintStart_toStartOf="@id/notifications_txt"
+                app:layout_constraintTop_toBottomOf="@id/notifications_btn" />
+
+            <TextView
+                android:id="@+id/get_help_txt"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="10dp"
+                android:gravity="center|start"
+                android:text="@string/get_help"
+                app:layout_constraintBottom_toBottomOf="@+id/get_help_btn"
+                app:layout_constraintEnd_toStartOf="@+id/get_help_btn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/get_help_btn" />
+
+            <ImageView
+                android:id="@+id/get_help_btn"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/chevron_right"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/div_3" />
+
+            <View
+                android:id="@+id/div_4"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:background="#606060"
+                app:layout_constraintEnd_toEndOf="@id/get_help_btn"
+                app:layout_constraintStart_toStartOf="@id/get_help_txt"
+                app:layout_constraintTop_toBottomOf="@id/get_help_btn" />
+
+            <TextView
+                android:id="@+id/report_problems_txt"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="10dp"
+                android:gravity="center|start"
+                android:text="@string/report_problem"
+                app:layout_constraintBottom_toBottomOf="@+id/report_problems_btn"
+                app:layout_constraintEnd_toStartOf="@+id/report_problems_btn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/report_problems_btn" />
+
+            <ImageView
+                android:id="@+id/report_problems_btn"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/chevron_right"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/div_4" />
+
+            <View
+                android:id="@+id/div_5"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:background="#606060"
+                app:layout_constraintEnd_toEndOf="@id/report_problems_btn"
+                app:layout_constraintStart_toStartOf="@id/report_problems_txt"
+                app:layout_constraintTop_toBottomOf="@id/report_problems_btn" />
+
+            <TextView
+                android:id="@+id/terms_of_use_txt"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="10dp"
+                android:gravity="center|start"
+                android:text="@string/terms_of_use"
+                app:layout_constraintBottom_toBottomOf="@+id/terms_of_use_btn"
+                app:layout_constraintEnd_toStartOf="@+id/terms_of_use_btn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/terms_of_use_btn" />
+
+            <ImageView
+                android:id="@+id/terms_of_use_btn"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/chevron_right"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/div_5" />
+
+            <View
+                android:id="@+id/div_6"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:background="#606060"
+                app:layout_constraintEnd_toEndOf="@id/terms_of_use_btn"
+                app:layout_constraintStart_toStartOf="@id/terms_of_use_txt"
+                app:layout_constraintTop_toBottomOf="@id/terms_of_use_btn" />
+
+            <TextView
+                android:id="@+id/logout_txt"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="10dp"
+                android:gravity="center|start"
+                android:text="@string/logout"
+                app:layout_constraintBottom_toBottomOf="@+id/logout_btn"
+                app:layout_constraintEnd_toStartOf="@+id/logout_btn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/logout_btn" />
+
+            <ImageView
+                android:id="@+id/logout_btn"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/logout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/div_6" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:background="#606060"
+                app:layout_constraintEnd_toEndOf="@id/logout_btn"
+                app:layout_constraintStart_toStartOf="@id/logout_txt"
+                app:layout_constraintTop_toBottomOf="@id/logout_btn" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 
     <ImageView
         android:id="@+id/orders"
@@ -123,6 +343,17 @@
         android:layout_height="30dp"
         android:layout_marginBottom="20dp"
         android:src="@drawable/jobs"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/services"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/services"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginBottom="20dp"
+        android:src="@drawable/jobs_settings"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -135,6 +366,6 @@
         android:src="@drawable/profile"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/orders" />
+        app:layout_constraintStart_toEndOf="@id/services" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

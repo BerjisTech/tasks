@@ -40,7 +40,7 @@ public class MyService extends AppCompatActivity {
     List<ImageList> imageList;
     ImagePagerAdapter imagePagerAdapter;
     String UID;
-    TextView serviceName, servicePrice, serviceRequests, serviceUser, serviceDescription;
+    TextView serviceName, servicePrice, serviceRequests, serviceUser, serviceDescription, requestService;
     ImageView profile, services, orders, home, chats, notifications, settings;
 
     @Override
@@ -68,6 +68,7 @@ public class MyService extends AppCompatActivity {
         serviceRequests = findViewById(R.id.serviceRequests);
         serviceUser = findViewById(R.id.serviceUser);
         serviceDescription = findViewById(R.id.serviceDescription);
+        requestService = findViewById(R.id.requestService);
 
         profile = findViewById(R.id.profile);
         services = findViewById(R.id.services);
@@ -78,10 +79,9 @@ public class MyService extends AppCompatActivity {
         settings = findViewById(R.id.settings);
 
         startPage();
-        staticOnClicks();
     }
 
-    private void staticOnClicks() {
+    private void staticOnClicks(String serviceID) {
         profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -139,6 +139,8 @@ public class MyService extends AppCompatActivity {
         String serviceID = s_b.getString("service");
         loadImages(serviceID);
         loadOffer(serviceID);
+        loadMe();
+        staticOnClicks(serviceID);
     }
 
     private void loadImages(String serviceID) {
@@ -179,6 +181,10 @@ public class MyService extends AppCompatActivity {
                 String requests = Objects.requireNonNull(documentSnapshot.get("requests")).toString();
                 String price = Objects.requireNonNull(documentSnapshot.get("price")).toString();
 
+                if (user.equals(UID)) {
+                    requestService.setVisibility(View.GONE);
+                }
+
                 serviceName.setText(name);
                 serviceDescription.setText(text);
                 serviceRequests.setText(requests + " requests");
@@ -197,6 +203,18 @@ public class MyService extends AppCompatActivity {
 
                 serviceUser.setText(username);
                 servicePrice.setText("(" + currency + " " + price + ")");
+            }
+        });
+    }
+
+    private void loadMe() {
+        firestore.collection("Users").document(UID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                String user_type = Objects.requireNonNull(Objects.requireNonNull(documentSnapshot.getData()).get("user_type")).toString();
+                if (user_type.equals("tasker")) {
+                    services.setVisibility(View.VISIBLE);
+                }
             }
         });
     }

@@ -24,6 +24,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppCustomTheme.NoActionBar"
         tools:replace="android:icon">
+        <activity android:name=".TermsActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden"
+            tools:ignore="LockedOrientationActivity" />
+        <activity android:name=".ChangePhoneNumber"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden"
+            tools:ignore="LockedOrientationActivity" />
         <activity
             android:name=".FullScreenGallery"
             android:screenOrientation="portrait"
