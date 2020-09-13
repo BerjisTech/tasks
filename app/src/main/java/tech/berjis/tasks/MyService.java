@@ -18,12 +18,15 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -81,7 +84,7 @@ public class MyService extends AppCompatActivity {
         startPage();
     }
 
-    private void staticOnClicks(String serviceID) {
+    private void staticOnClicks(final String serviceID, final String user, final String price, final String name, final String text, final long requests, final String currency) {
         profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -121,14 +124,13 @@ public class MyService extends AppCompatActivity {
         home.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Intent c_intent = new Intent(MyService.this, FeedActivity.class);
-                Bundle c_bundle = new Bundle();
-                c_bundle.putString("category", "");
-                c_bundle.putString("location", "");
-                c_bundle.putString("minimum", "");
-                c_bundle.putString("maximum", "");
-                c_intent.putExtras(c_bundle);
-                startActivity(c_intent);
+                goHome();
+            }
+        });
+        requestService.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requestService(serviceID, user, price, name, text, requests, currency);
             }
         });
     }
@@ -140,7 +142,6 @@ public class MyService extends AppCompatActivity {
         loadImages(serviceID);
         loadOffer(serviceID);
         loadMe();
-        staticOnClicks(serviceID);
     }
 
     private void loadImages(String serviceID) {
@@ -171,14 +172,13 @@ public class MyService extends AppCompatActivity {
         });
     }
 
-    private void loadOffer(String serviceID) {
+    private void loadOffer(final String serviceID) {
         firestore.collection("Services").document(serviceID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 String name = Objects.requireNonNull(documentSnapshot.get("category")).toString();
                 String user = Objects.requireNonNull(documentSnapshot.getData().get("user")).toString();
                 String text = Objects.requireNonNull(documentSnapshot.get("text")).toString();
-                String requests = Objects.requireNonNull(documentSnapshot.get("requests")).toString();
                 String price = Objects.requireNonNull(documentSnapshot.get("price")).toString();
 
                 if (user.equals(UID)) {
@@ -187,14 +187,24 @@ public class MyService extends AppCompatActivity {
 
                 serviceName.setText(name);
                 serviceDescription.setText(text);
-                serviceRequests.setText(requests + " requests");
 
-                loadUser(user, price);
+                count(serviceID, user, price, name, text);
             }
         });
     }
 
-    private void loadUser(final String user, final String price) {
+    private void count(final String serviceID, final String user, final String price, final String name, final String text) {
+        firestore.collection("Orders").whereEqualTo("service", serviceID).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                long count = queryDocumentSnapshots.size();
+                serviceRequests.setText("Requested "+ count + " times");
+                loadUser(serviceID, user, price, name, text, count);
+            }
+        });
+    }
+
+    private void loadUser(final String serviceID, final String user, final String price, final String name, final String text, final long requests) {
         firestore.collection("Users").document(user).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -203,6 +213,7 @@ public class MyService extends AppCompatActivity {
 
                 serviceUser.setText(username);
                 servicePrice.setText("(" + currency + " " + price + ")");
+                staticOnClicks(serviceID, user, price, name, text, requests, currency);
             }
         });
     }
@@ -217,5 +228,62 @@ public class MyService extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void requestService(final String serviceID, final String user, final String price, final String name, final String text, final long requests, final String currency) {
+
+        final long unixTime = System.currentTimeMillis() / 1000L;
+
+        List<String> parties = new ArrayList<>();
+
+        parties.add(UID);
+        parties.add(user);
+
+        DocumentReference reference = firestore.collection("Orders").document();
+        String requestID = reference.getId();
+
+        HashMap<String, Object> request = new HashMap<>();
+
+        request.put("time", unixTime);
+        request.put("service", serviceID);
+        request.put("seller", user);
+        request.put("user", UID);
+        request.put("currency", currency);
+        request.put("status", "pending");
+        request.put("request", requestID);
+        request.put("parties", parties);
+
+
+        reference.set(request).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Intent o_i = new Intent(MyService.this, MyOrder.class);
+                Bundle o_b = new Bundle();
+                o_b.putString("UID", UID);
+                o_b.putString("seller", user);
+                o_b.putString("serviceID", serviceID);
+                o_b.putString("text", text);
+                o_b.putString("category", name);
+                o_b.putLong("time", unixTime);
+                o_b.putString("currency", currency);
+                o_b.putString("price", price);
+                o_b.putLong("requests", requests);
+                o_i.putExtras(o_b);
+                startActivity(o_i);
+                requestService.setVisibility(View.GONE);
+            }
+        });
+
+    }
+
+    private void goHome() {
+        final Intent c_intent = new Intent(MyService.this, FeedActivity.class);
+        Bundle c_bundle = new Bundle();
+        c_bundle.putString("category", "");
+        c_bundle.putString("location", "");
+        c_bundle.putLong("minimum", 0);
+        c_bundle.putLong("maximum", 0);
+        c_intent.putExtras(c_bundle);
+        startActivity(c_intent);
     }
 }

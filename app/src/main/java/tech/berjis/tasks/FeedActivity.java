@@ -13,7 +13,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.text.HtmlCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,9 +26,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
 import java.util.Objects;
@@ -46,7 +47,8 @@ public class FeedActivity extends AppCompatActivity {
 
     RecyclerView categoryRecycler, postsRecycler;
     ImageView search, services, orders, profile, chats, notifications;
-    String UID, currency_symbol = "";
+    String UID, currency_symbol = "", category, location;
+    long minimum, maximum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,22 +118,22 @@ public class FeedActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        loadWorkers();
+    }
+
     private void loadWorkers() {
         Intent c_intent = getIntent();
         Bundle c_bundle = c_intent.getExtras();
 
         assert c_bundle != null;
-        String category = c_bundle.getString("category");
-        String location = c_bundle.getString("location");
-        String minimum = c_bundle.getString("minimum");
-        String maximum = c_bundle.getString("maximum");
+        category = c_bundle.getString("category");
+        location = c_bundle.getString("location");
+        minimum = c_bundle.getLong("minimum");
+        maximum = c_bundle.getLong("maximum");
 
-
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         loaduserdata();
         loadcategories();
     }
@@ -190,9 +192,19 @@ public class FeedActivity extends AppCompatActivity {
     }
 
     private void loadServices() {
+        CollectionReference servicesReference = firestore.collection("Services");
+
+        if (category != null && !category.equals("")) {
+            servicesReference.whereEqualTo("category", category);
+        }
+        servicesReference.whereGreaterThanOrEqualTo("price", minimum);
+        if (maximum > 0) {
+            servicesReference.whereLessThanOrEqualTo("price", maximum);
+        }
+
         postsRecycler.setLayoutManager(new LinearLayoutManager(FeedActivity.this, RecyclerView.VERTICAL, false));
         FirestoreRecyclerOptions<Services> options = new FirestoreRecyclerOptions.Builder<Services>()
-                .setQuery(firestore.collection("Services"), Services.class)
+                .setQuery(servicesReference, Services.class)
                 .build();
 
         s_adapter = new FirestoreRecyclerAdapter<Services, FeedActivity.ServicesViewHolder>(options) {
@@ -234,8 +246,8 @@ public class FeedActivity extends AppCompatActivity {
                     Bundle c_bundle = new Bundle();
                     c_bundle.putString("category", c_name);
                     c_bundle.putString("location", "");
-                    c_bundle.putString("minimum", "");
-                    c_bundle.putString("maximum", "");
+                    c_bundle.putLong("minimum", 0);
+                    c_bundle.putLong("maximum", 0);
                     c_intent.putExtras(c_bundle);
                     view.getContext().startActivity(c_intent);
                 }
@@ -251,21 +263,11 @@ public class FeedActivity extends AppCompatActivity {
             view = itemView;
         }
 
-        void setServices(final String Service_id,
-                         final String Category,
-                         final String Location,
-                         final long Price,
-                         final long Requests,
-                         final String Text,
-                         final long Time,
-                         String User,
-                         String currency_symbol,
-                         FirebaseFirestore firestore) {
+        void setServices(final String Service_id, final String Category, final String Location, final long Price, final long Requests, final String Text, final long Time, final String User, String currency_symbol, final FirebaseFirestore firestore) {
 
             final TextView serviceTitle = view.findViewById(R.id.serviceTitle);
             final ImageView mainImage = view.findViewById(R.id.mainImage);
             final TextView servicePrice = view.findViewById(R.id.servicePrice);
-            final TextView serviceDescription = view.findViewById(R.id.serviceDescription);
 
             serviceTitle.setText(Category);
             servicePrice.setText(currency_symbol + " " + Price);
@@ -288,21 +290,13 @@ public class FeedActivity extends AppCompatActivity {
                 }
             });
 
-            firestore.collection("Users")
-                    .document(User)
-                    .get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            String user_name = Objects.requireNonNull(Objects.requireNonNull(documentSnapshot.getData()).get("first_name")).toString() + " " + Objects.requireNonNull(Objects.requireNonNull(documentSnapshot.getData()).get("last_name")).toString();
-
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                serviceDescription.setText(Html.fromHtml(user_name + " <br /><small>(" + Requests + " requests)</small>", Html.FROM_HTML_MODE_COMPACT));
-                            } else {
-                                serviceDescription.setText(Html.fromHtml(user_name + " <br /><small>(" + Requests + " requests)</small>"));
-                            }
-                        }
-                    });
+            firestore.collection("Orders").whereEqualTo("service", Service_id).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                    long count = queryDocumentSnapshots.size();
+                    kitu(count, firestore, User);
+                }
+            });
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -311,6 +305,22 @@ public class FeedActivity extends AppCompatActivity {
                     s_b.putString("service", Service_id);
                     s_i.putExtras(s_b);
                     itemView.getContext().startActivity(s_i);
+                }
+            });
+        }
+
+        private void kitu(final long count, FirebaseFirestore firestore, String user) {
+            final TextView serviceDescription = view.findViewById(R.id.serviceDescription);
+            firestore.collection("Users").document(user).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    String user_name = Objects.requireNonNull(Objects.requireNonNull(documentSnapshot.getData()).get("first_name")).toString() + " " + Objects.requireNonNull(Objects.requireNonNull(documentSnapshot.getData()).get("last_name")).toString();
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        serviceDescription.setText(Html.fromHtml(user_name + " <br /><small>(Requested " + count + " times)</small>", Html.FROM_HTML_MODE_COMPACT));
+                    } else {
+                        serviceDescription.setText(Html.fromHtml(user_name + " <br /><small>(Requested " + count + " times)</small>"));
+                    }
                 }
             });
         }

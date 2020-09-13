@@ -46,7 +46,7 @@ public class WhichTaskActivity extends AppCompatActivity {
     TextView searchButton;
     EditText max, min;
     String category_name, location;
-    ImageView profile;
+    ImageView profile, services, orders;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +70,8 @@ public class WhichTaskActivity extends AppCompatActivity {
         max = findViewById(R.id.maximumAmount);
         min = findViewById(R.id.minimumAmount);
         profile = findViewById(R.id.profile);
+        orders = findViewById(R.id.orders);
+        services = findViewById(R.id.services);
 
         loadSpinners();
         staticOnClicks();
@@ -81,6 +83,20 @@ public class WhichTaskActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(WhichTaskActivity.this, ProfileActivity.class));
+            }
+        });
+
+        orders.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(WhichTaskActivity.this, MyOrdersActivity.class));
+            }
+        });
+
+        services.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(WhichTaskActivity.this, MyServicesActivity.class));
             }
         });
 
@@ -228,8 +244,8 @@ public class WhichTaskActivity extends AppCompatActivity {
                     Bundle c_bundle = new Bundle();
                     c_bundle.putString("category", c_name);
                     c_bundle.putString("location", "");
-                    c_bundle.putString("minimum", "");
-                    c_bundle.putString("maximum", "");
+                    c_bundle.putLong("minimum", 0);
+                    c_bundle.putLong("maximum", 0);
                     c_intent.putExtras(c_bundle);
                     view.getContext().startActivity(c_intent);
                 }

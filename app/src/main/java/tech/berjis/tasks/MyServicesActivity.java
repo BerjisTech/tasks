@@ -121,8 +121,8 @@ public class MyServicesActivity extends AppCompatActivity {
                 Bundle c_bundle = new Bundle();
                 c_bundle.putString("category", "");
                 c_bundle.putString("location", "");
-                c_bundle.putString("minimum", "");
-                c_bundle.putString("maximum", "");
+                c_bundle.putLong("minimum", 0);
+                c_bundle.putLong("maximum", 0);
                 c_intent.putExtras(c_bundle);
                 startActivity(c_intent);
             }
