@@ -21,10 +21,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
-import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -42,8 +43,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class EditProfileActivity extends AppCompatActivity {
 
     FirebaseAuth mAuth;
-    FirebaseFirestore dbFire;
-    FirebaseFirestoreSettings fireSettings;
+    DatabaseReference dbRef;
     String UID, U_Phone;
     StorageReference storageReference;
     Uri filePath;
@@ -67,11 +67,8 @@ public class EditProfileActivity extends AppCompatActivity {
     private void initLayouts() {
         storageReference = FirebaseStorage.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-        dbFire = FirebaseFirestore.getInstance();
-        fireSettings = new FirebaseFirestoreSettings.Builder()
-                .setPersistenceEnabled(true)
-                .build();
-        dbFire.setFirestoreSettings(fireSettings);
+        dbRef = FirebaseDatabase.getInstance().getReference();
+        dbRef.keepSynced(true);
         UID = mAuth.getCurrentUser().getUid();
         U_Phone = mAuth.getCurrentUser().getPhoneNumber();
 
@@ -158,7 +155,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
                                     user.put("user_image", image_url);
 
-                                    dbFire.collection("Users").document(UID).set(user, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    dbRef.child("Users").child(UID).updateChildren(user).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
                                             loadUserData();
@@ -237,7 +234,7 @@ public class EditProfileActivity extends AppCompatActivity {
         user.put("user_email", user_email);
         user.put("user_description", user_description);
 
-        dbFire.collection("Users").document(UID).set(user, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+        dbRef.child("Users").child(UID).updateChildren(user).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 Toast.makeText(EditProfileActivity.this, "Profile Successfully Update", Toast.LENGTH_SHORT).show();
@@ -250,13 +247,13 @@ public class EditProfileActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        dbFire.collection("Users").document(UID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        dbRef.child("Users").child(UID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                String user_email = Objects.requireNonNull(documentSnapshot.getData().get("user_email")).toString();
-                String user_name = Objects.requireNonNull(documentSnapshot.getData().get("user_name")).toString();
-                String first_name = Objects.requireNonNull(documentSnapshot.getData().get("first_name")).toString();
-                String last_name = Objects.requireNonNull(documentSnapshot.getData().get("last_name")).toString();
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String user_email = Objects.requireNonNull(snapshot.child("user_email").getValue()).toString();
+                String user_name = Objects.requireNonNull(snapshot.child("user_name").getValue()).toString();
+                String first_name = Objects.requireNonNull(snapshot.child("first_name").getValue()).toString();
+                String last_name = Objects.requireNonNull(snapshot.child("last_name").getValue()).toString();
                 if (user_email.equals("") ||
                         user_name.equals("") ||
                         first_name.equals("") ||
@@ -274,24 +271,29 @@ public class EditProfileActivity extends AppCompatActivity {
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .show();
                 } else {
-                    EditProfileActivity.super.finish();
+                    startActivity(new Intent(EditProfileActivity.this, ProfileActivity.class));
                 }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }
 
     private void loadUserData() {
-        dbFire.collection("Users").document(UID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        dbRef.child("Users").child(UID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                String user_description = Objects.requireNonNull(documentSnapshot.getData().get("user_description")).toString();
-                String user_email = Objects.requireNonNull(documentSnapshot.getData().get("user_email")).toString();
-                String user_name = Objects.requireNonNull(documentSnapshot.getData().get("user_name")).toString();
-                String first_name = Objects.requireNonNull(documentSnapshot.getData().get("first_name")).toString();
-                String last_name = Objects.requireNonNull(documentSnapshot.getData().get("last_name")).toString();
-                String user_image = Objects.requireNonNull(documentSnapshot.getData().get("user_image")).toString();
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String user_description = Objects.requireNonNull(snapshot.child("user_description").getValue()).toString();
+                String user_email = Objects.requireNonNull(snapshot.child("user_email").getValue()).toString();
+                String user_name = Objects.requireNonNull(snapshot.child("user_name").getValue()).toString();
+                String first_name = Objects.requireNonNull(snapshot.child("first_name").getValue()).toString();
+                String last_name = Objects.requireNonNull(snapshot.child("last_name").getValue()).toString();
+                String user_image = Objects.requireNonNull(snapshot.child("user_image").getValue()).toString();
 
-                if(!user_image.equals("")){
+                if (!user_image.equals("")) {
                     Picasso.get().load(user_image).error(R.drawable.logo).into(dp);
                 }
                 firstName.setText(first_name);
@@ -299,6 +301,11 @@ public class EditProfileActivity extends AppCompatActivity {
                 userName.setText(user_name);
                 userEmail.setText(user_email);
                 userDescription.setText(user_description);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }

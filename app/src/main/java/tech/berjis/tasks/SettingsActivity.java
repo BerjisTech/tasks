@@ -1,32 +1,31 @@
 package tech.berjis.tasks;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnSuccessListener;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Objects;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    FirebaseFirestore firestore;
     FirebaseAuth mAuth;
-    FirebaseFirestoreSettings firestoreSettings;
     DatabaseReference dbRef;
 
     String UID;
-    ImageView profile, services, orders, home, chats, notifications, settings, edit_profile_btn, change_phone_btn, back, terms_of_use_btn, logout_btn, notifications_btn;;
+    ImageView profile, services, orders, home, chats, notifications, settings, edit_profile_btn, change_phone_btn, back, terms_of_use_btn, logout_btn, notifications_btn;
+    ;
     TextView edit_profile_txt, change_phone_txt, terms_of_use_txt, logout_txt, notifications_txt;
 
     @Override
@@ -39,10 +38,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void initVars() {
         mAuth = FirebaseAuth.getInstance();
-        firestore = FirebaseFirestore.getInstance();
-        firestoreSettings = new FirebaseFirestoreSettings.Builder()
-                .setPersistenceEnabled(true).build();
-        firestore.setFirestoreSettings(firestoreSettings);
         dbRef = FirebaseDatabase.getInstance().getReference();
         dbRef.keepSynced(true);
         UID = mAuth.getCurrentUser().getUid();
@@ -189,16 +184,20 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void loaduserdata() {
         UID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
-        firestore.collection("Users")
-                .document(UID)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        dbRef.child("Users")
+                .child(UID)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        String user_type = Objects.requireNonNull(Objects.requireNonNull(documentSnapshot.getData()).get("user_type")).toString();
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String user_type = snapshot.child("user_type").getValue().toString();
                         if (user_type.equals("tasker")) {
                             services.setVisibility(View.VISIBLE);
                         }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
                     }
                 });
     }

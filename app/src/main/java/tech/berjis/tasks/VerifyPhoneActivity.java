@@ -22,8 +22,6 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +39,6 @@ public class VerifyPhoneActivity extends AppCompatActivity {
     //firebase auth object
     private FirebaseAuth mAuth;
     private DatabaseReference dbRef;
-    FirebaseFirestore db;
 
 
     @Override
@@ -52,7 +49,6 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         //initializing objects
         mAuth = FirebaseAuth.getInstance();
         dbRef = FirebaseDatabase.getInstance().getReference();
-        db = FirebaseFirestore.getInstance();
         editTextCode = findViewById(R.id.editTextCode);
 
 
@@ -150,7 +146,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                             final String UID = mAuth.getCurrentUser().getUid();
                             String UPhone = mAuth.getCurrentUser().getPhoneNumber();
 
-                            Map<String, Object> user = new HashMap<>();
+                            HashMap<String, Object> user = new HashMap<>();
                             user.put("country", country);
                             user.put("country_code", country_code);
                             user.put("user_id", UID);
@@ -164,7 +160,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                             user.put("user_description", "");
 
 
-                            db.collection("Users").document(UID).set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            dbRef.child("Users").child(UID).updateChildren(user).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     saveCurrency(UID);
@@ -570,12 +566,10 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         user.put("currency_symbol", symbol);
         user.put("currency_name", name);
 
-        db.collection("Users").document(UID).set(user, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+        dbRef.child("Users").child(UID).updateChildren(user).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Intent intent = new Intent(VerifyPhoneActivity.this, EditProfileActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
+                startActivity(new Intent(VerifyPhoneActivity.this, EditProfileActivity.class));
             }
         });
     }

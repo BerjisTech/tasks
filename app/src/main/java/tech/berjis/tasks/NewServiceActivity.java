@@ -1,14 +1,19 @@
 package tech.berjis.tasks;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,8 +21,17 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -28,10 +42,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -45,14 +55,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
-public class NewServiceActivity extends AppCompatActivity {
+public class NewServiceActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    FirebaseFirestore firestore;
+    DatabaseReference dbRef;
     FirebaseAuth mAuth;
-    FirebaseFirestoreSettings firestoreSettings;
+
+    GoogleMap mMap;
+    final int REQUEST_LOCATION = 1;
+    private FusedLocationProviderClient fusedLocationClient;
 
     TextView newImage, saveButton;
     ViewPager2 imagePager;
@@ -65,28 +76,40 @@ public class NewServiceActivity extends AppCompatActivity {
     Uri filePath;
     String UID, serviceID = "", hasImage = "";
 
-    SearchableSpinner categorySpinner, locationSpinner;
+    SearchableSpinner categorySpinner;
     EditText price;
-    String category_name, location;
+    String category_name = "";
     ImageView home, chats, notifications, settings;
+    SupportMapFragment mapFragment;
+    Button selectLocation;
+    double myLat, myLong;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_service);
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions((Activity) this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+            ActivityCompat.requestPermissions((Activity) this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
+            return;
+        }
         initVars();
     }
 
     private void initVars() {
         mAuth = FirebaseAuth.getInstance();
-        firestore = FirebaseFirestore.getInstance();
-        firestoreSettings = new FirebaseFirestoreSettings.Builder()
-                .setPersistenceEnabled(true).build();
-        firestore.setFirestoreSettings(firestoreSettings);
+        dbRef = FirebaseDatabase.getInstance().getReference();
+        dbRef.keepSynced(true);
         storageReference = FirebaseStorage.getInstance().getReference();
         UID = mAuth.getCurrentUser().getUid();
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         long unixTime = System.currentTimeMillis() / 1000L;
         serviceID = UID + "_" + unixTime;
@@ -97,35 +120,44 @@ public class NewServiceActivity extends AppCompatActivity {
         newImage = findViewById(R.id.newImage);
         saveButton = findViewById(R.id.saveButton);
         serviceText = findViewById(R.id.serviceText);
+        mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.my_location);
+        assert mapFragment != null;
+        mapFragment.getMapAsync(this);
 
         categorySpinner = findViewById(R.id.categorySpinner);
-        locationSpinner = findViewById(R.id.locationSpinner);
         chats = findViewById(R.id.chats);
         home = findViewById(R.id.home);
         notifications = findViewById(R.id.notifications);
         settings = findViewById(R.id.settings);
         price = findViewById(R.id.price);
+        selectLocation = findViewById(R.id.selectLocation);
 
         loadSpinners();
         staticOnClicks();
         loadImages();
+        getUserArea();
     }
 
     private void loadSpinners() {
         final List<String> categories = new ArrayList<>();
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_item, categories);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        categorySpinner.setAdapter(adapter);
-        firestore.collection("Categories").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        categories.add("Select Category");
+        dbRef.child("Categories").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                        String subject = document.getString("name");
-                        categories.add(subject);
-                    }
-                    adapter.notifyDataSetChanged();
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot areaSnapshot : snapshot.getChildren()) {
+                    String subject = areaSnapshot.child("name").getValue(String.class);
+                    categories.add(subject);
                 }
+                adapter.notifyDataSetChanged();
+                categorySpinner.setAdapter(adapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }
@@ -151,22 +183,6 @@ public class NewServiceActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position > 0) {
                     category_name = categorySpinner.getSelectedItem().toString();
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        locationSpinner.setTitle("Choose location");
-        locationSpinner.setPositiveButton("Cancel");
-        locationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position > 0) {
-                    location = locationSpinner.getSelectedItem().toString();
                 }
             }
 
@@ -205,6 +221,12 @@ public class NewServiceActivity extends AppCompatActivity {
                 c_bundle.putLong("maximum", 0);
                 c_intent.putExtras(c_bundle);
                 startActivity(c_intent);
+            }
+        });
+        selectLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getUserArea();
             }
         });
     }
@@ -322,7 +344,7 @@ public class NewServiceActivity extends AppCompatActivity {
 
     private void serviceText() {
 
-        if(category_name.equals("")){
+        if (category_name.equals("")) {
             new AlertDialog
                     .Builder(this)
                     .setMessage("You need to specify what you're offering")
@@ -342,18 +364,19 @@ public class NewServiceActivity extends AppCompatActivity {
 
         Toast.makeText(this, "Service succesfully published", Toast.LENGTH_SHORT).show();
 
-        Map<String, Object> user = new HashMap<>();
+        HashMap<String, Object> user = new HashMap<>();
 
         user.put("text", text);
         user.put("category", category_name);
-        user.put("location", location);
+        user.put("lat", myLat);
+        user.put("long", myLong);
         user.put("price", Long.parseLong(bei));
         user.put("service_id", serviceID);
         user.put("user", UID);
         user.put("time", unixTime);
         user.put("requests", 0);
 
-        firestore.collection("Services").document(serviceID).set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+        dbRef.child("Services").child(serviceID).setValue(user).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 NewServiceActivity.super.finish();
@@ -361,5 +384,57 @@ public class NewServiceActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        LatLng nairobi = new LatLng(-1.3031934, 36.5672003);
+        mMap.addMarker(new MarkerOptions()
+                .position(nairobi)
+                .title("Nairobi"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(nairobi));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(15F));
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                myLat = latLng.latitude;
+                myLong = latLng.longitude;
+                Toast.makeText(NewServiceActivity.this, myLat + "," + myLong, Toast.LENGTH_SHORT).show();
+                mMap.clear();
+                mMap.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .title("Nairobi"));
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(15F));
+            }
+        });
+    }
+
+    private void getUserArea() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions((Activity) this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+            ActivityCompat.requestPermissions((Activity) this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
+            return;
+        }
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                            mMap.clear();
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(latLng)
+                                    .title("My Location"));
+                            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                            mMap.animateCamera(CameraUpdateFactory.zoomTo(15F));
+                            myLat = latLng.latitude;
+                            myLong = latLng.longitude;
+                            Toast.makeText(NewServiceActivity.this, String.valueOf(latLng), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 }

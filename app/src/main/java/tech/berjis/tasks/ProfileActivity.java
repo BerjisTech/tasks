@@ -10,6 +10,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,10 +23,11 @@ import com.bumptech.glide.signature.ObjectKey;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
-import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.vanniktech.emoji.EmojiTextView;
 
 import java.util.HashMap;
@@ -37,8 +39,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ProfileActivity extends AppCompatActivity {
 
     FirebaseAuth mAuth;
-    FirebaseFirestore dbFire;
-    FirebaseFirestoreSettings fireSettings;
+    DatabaseReference dbRef;
     String UID;
 
     ImageView home, chats, profile, menu;
@@ -55,11 +56,8 @@ public class ProfileActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         UID = mAuth.getCurrentUser().getUid();
-        dbFire = FirebaseFirestore.getInstance();
-        fireSettings = new FirebaseFirestoreSettings.Builder()
-                .setPersistenceEnabled(true)
-                .build();
-        dbFire.setFirestoreSettings(fireSettings);
+        dbRef = FirebaseDatabase.getInstance().getReference();
+        dbRef.keepSynced(true);
 
         menu = findViewById(R.id.menu);
         home = findViewById(R.id.home);
@@ -89,14 +87,7 @@ public class ProfileActivity extends AppCompatActivity {
         home.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Intent c_intent = new Intent(ProfileActivity.this, FeedActivity.class);
-                Bundle c_bundle = new Bundle();
-                c_bundle.putString("category", "");
-                c_bundle.putString("location", "");
-                c_bundle.putLong("minimum", 0);
-                c_bundle.putLong("maximum", 0);
-                c_intent.putExtras(c_bundle);
-                startActivity(c_intent);
+                startActivity(new Intent(ProfileActivity.this, FeedActivity.class));
             }
         });
         chats.setOnClickListener(new View.OnClickListener() {
@@ -136,7 +127,7 @@ public class ProfileActivity extends AppCompatActivity {
                                 Map<String, Object> user = new HashMap<>();
                                 user.put("user_type", "tasker");
 
-                                dbFire.collection("Users").document(UID).set(user, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                dbRef.child("Users").child(UID).updateChildren(user).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         Snackbar.make(chats, "Your tasker account has been activated", Snackbar.LENGTH_LONG)
@@ -166,25 +157,24 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void loaduserdata() {
-        dbFire.collection("Users")
-                .document(UID)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        dbRef.child("Users")
+                .child(UID)
+                .addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        String alias = Objects.requireNonNull(Objects.requireNonNull(documentSnapshot.getData()).get("user_name")).toString();
-                        String user_type = Objects.requireNonNull(Objects.requireNonNull(documentSnapshot.getData()).get("user_type")).toString();
-                        String fullname = Objects.requireNonNull(documentSnapshot.getData().get("first_name")).toString() + " " + Objects.requireNonNull(documentSnapshot.getData().get("last_name")).toString();
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String alias = snapshot.child("user_name").getValue().toString();
+                        String user_type = snapshot.child("user_type").getValue().toString();
+                        String fullname = snapshot.child("first_name").getValue().toString() + " " + snapshot.child("last_name").getValue().toString();
                         username.setText("@" + alias);
                         full_name.setText(fullname);
 
-                        if (!documentSnapshot.getData().get("user_image").equals("")) {
+                        if (!snapshot.child("user_image").getValue().toString().equals("")) {
                             long unixTime = System.currentTimeMillis() / 1000L;
                             RequestOptions requestOptions = new RequestOptions().diskCacheStrategy(DiskCacheStrategy.ALL).signature(new ObjectKey(unixTime));
 
                             Glide
                                     .with(ProfileActivity.this)
-                                    .load(documentSnapshot.getData().get("user_image").toString())
+                                    .load(snapshot.child("user_image").getValue().toString())
                                     .thumbnail(Glide.with(ProfileActivity.this).load(R.drawable.preloader))
                                     .centerCrop()
                                     .apply(requestOptions)
@@ -199,30 +189,48 @@ public class ProfileActivity extends AppCompatActivity {
                             createTask.setVisibility(View.GONE);
                         }
                     }
-                });
-    }
 
-    private void newUserState() {
-        dbFire.collection("Users")
-                .document(UID)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        String user_email = Objects.requireNonNull(documentSnapshot.getData().get("user_email")).toString();
-                        String user_name = Objects.requireNonNull(documentSnapshot.getData().get("user_name")).toString();
-                        String first_name = Objects.requireNonNull(documentSnapshot.getData().get("first_name")).toString();
-                        String last_name = Objects.requireNonNull(documentSnapshot.getData().get("last_name")).toString();
-                        if (user_email.equals("") ||
-                                user_name.equals("") ||
-                                first_name.equals("") ||
-                                last_name.equals("")) {
-                            startActivity(new Intent(ProfileActivity.this, EditProfileActivity.class));
-                        } else {
-                            loaduserdata();
-                        }
+                    public void onCancelled(@NonNull DatabaseError error) {
+
                     }
                 });
     }
 
+    private void newUserState() {
+        dbRef.child("Users")
+                .child(UID)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String user_type = Objects.requireNonNull(snapshot.child("user_type").getValue()).toString();
+                        String user_email = Objects.requireNonNull(snapshot.child("user_email").getValue()).toString();
+                        String user_name = Objects.requireNonNull(snapshot.child("user_name").getValue()).toString();
+                        String first_name = Objects.requireNonNull(snapshot.child("first_name").getValue()).toString();
+                        String last_name = Objects.requireNonNull(snapshot.child("last_name").getValue()).toString();
+
+                        if (user_email.equals("") ||
+                                user_name.equals("") ||
+                                first_name.equals("") ||
+                                last_name.equals("")) {
+                            Intent mainActivity = new Intent(getApplicationContext(), EditProfileActivity.class);
+                            startActivity(mainActivity);
+                            finish();
+                        } else {
+                            loaduserdata();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(ProfileActivity.this, FeedActivity.class));
+    }
 }

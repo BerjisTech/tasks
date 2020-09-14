@@ -11,17 +11,18 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.viewpager.widget.ViewPager;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,9 +40,8 @@ public class MainActivity extends AppCompatActivity {
     ConstraintLayout rootView, splash;
 
     FirebaseDatabase firebaseDatabase;
-    FirebaseFirestore dbFire;
     FirebaseAuth mAuth;
-    FirebaseFirestoreSettings settings;
+    DatabaseReference dbRef;
     String UID;
 
 
@@ -62,11 +62,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mAuth = FirebaseAuth.getInstance();
-        dbFire = FirebaseFirestore.getInstance();
-        settings = new FirebaseFirestoreSettings.Builder()
-                .setPersistenceEnabled(true)
-                .build();
-        dbFire.setFirestoreSettings(settings);
+        dbRef = FirebaseDatabase.getInstance().getReference();
+        dbRef.keepSynced(true);
 
         // ini views
         btnNext = findViewById(R.id.btn_next);
@@ -240,17 +237,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void redirectUser() {
         UID = mAuth.getCurrentUser().getUid();
-        dbFire.collection("Users")
-                .document(UID)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        dbRef.child("Users")
+                .child(UID)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        String user_type = Objects.requireNonNull(documentSnapshot.getData().get("user_type")).toString();
-                        String user_email = Objects.requireNonNull(documentSnapshot.getData().get("user_email")).toString();
-                        String user_name = Objects.requireNonNull(documentSnapshot.getData().get("user_name")).toString();
-                        String first_name = Objects.requireNonNull(documentSnapshot.getData().get("first_name")).toString();
-                        String last_name = Objects.requireNonNull(documentSnapshot.getData().get("last_name")).toString();
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String user_type = Objects.requireNonNull(snapshot.child("user_type").getValue()).toString();
+                        String user_email = Objects.requireNonNull(snapshot.child("user_email").getValue()).toString();
+                        String user_name = Objects.requireNonNull(snapshot.child("user_name").getValue()).toString();
+                        String first_name = Objects.requireNonNull(snapshot.child("first_name").getValue()).toString();
+                        String last_name = Objects.requireNonNull(snapshot.child("last_name").getValue()).toString();
 
                         if (user_email.equals("") ||
                                 user_name.equals("") ||
@@ -270,6 +266,11 @@ public class MainActivity extends AppCompatActivity {
                                 finish();
                             }
                         }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
                     }
                 });
     }

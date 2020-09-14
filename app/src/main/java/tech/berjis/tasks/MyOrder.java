@@ -9,15 +9,16 @@ import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.Objects;
@@ -26,9 +27,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MyOrder extends AppCompatActivity {
 
-    FirebaseFirestore firestore;
-    FirebaseFirestoreSettings firestoreSettings;
     FirebaseAuth mAuth;
+    DatabaseReference dbRef;
 
     String UID, seller, serviceID, text, currency, price, category;
     long time, requests;
@@ -62,10 +62,8 @@ public class MyOrder extends AppCompatActivity {
 
     private void initVars() {
         mAuth = FirebaseAuth.getInstance();
-        firestore = FirebaseFirestore.getInstance();
-        firestoreSettings = new FirebaseFirestoreSettings.Builder()
-                .setPersistenceEnabled(true).build();
-        firestore.setFirestoreSettings(firestoreSettings);
+        dbRef = FirebaseDatabase.getInstance().getReference();
+        dbRef.keepSynced(true);
 
         serviceTitle = findViewById(R.id.serviceTitle);
         servicePrice = findViewById(R.id.servicePrice);
@@ -109,10 +107,10 @@ public class MyOrder extends AppCompatActivity {
 
     private void call(String mteja) {
         final int REQUEST_PHONE_CALL = 1;
-        firestore.collection("Users").document(mteja).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        dbRef.child("Users").child(mteja).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                String phone = Objects.requireNonNull(documentSnapshot.get("user_phone")).toString();
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String phone = snapshot.child("user_phone").getValue().toString();
                 Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + phone));
                 if (ActivityCompat.checkSelfPermission(MyOrder.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MyOrder.this, new String[]{Manifest.permission.CALL_PHONE}, REQUEST_PHONE_CALL);
@@ -120,15 +118,25 @@ public class MyOrder extends AppCompatActivity {
                 }
                 startActivity(intent);
             }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
         });
     }
 
     private void count() {
-        firestore.collection("Orders").whereEqualTo("service", serviceID).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        dbRef.child("Orders").orderByChild("service").equalTo(serviceID).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                long count = queryDocumentSnapshots.size();
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                long count = snapshot.getChildrenCount();
                 serviceRequests.setText("Requested " + count + " times");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }
@@ -145,33 +153,43 @@ public class MyOrder extends AppCompatActivity {
     }
 
     private void loadSeller() {
-        firestore.collection("Users").document(seller).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        dbRef.child("Users").child(seller).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                String f_name = Objects.requireNonNull(documentSnapshot.get("first_name")).toString();
-                String l_name = Objects.requireNonNull(documentSnapshot.get("last_name")).toString();
-                String image = Objects.requireNonNull(documentSnapshot.get("user_image")).toString();
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String f_name = snapshot.child("first_name").getValue().toString();
+                String l_name = snapshot.child("last_name").getValue().toString();
+                String image = snapshot.child("user_image").getValue().toString();
                 sellerName.setText(Html.fromHtml("<small><sub>Done by</sub></small><br />" +
                         f_name + " " + l_name));
                 if (!image.equals("")) {
                     Picasso.get().load(image).into(sellerImage);
                 }
             }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
         });
     }
 
     private void loadClient() {
-        firestore.collection("Users").document(UID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        dbRef.child("Users").child(UID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                String f_name = Objects.requireNonNull(documentSnapshot.get("first_name")).toString();
-                String l_name = Objects.requireNonNull(documentSnapshot.get("last_name")).toString();
-                String image = Objects.requireNonNull(documentSnapshot.get("user_image")).toString();
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String f_name = snapshot.child("first_name").getValue().toString();
+                String l_name = snapshot.child("last_name").getValue().toString();
+                String image = snapshot.child("user_image").getValue().toString();
                 clientName.setText(Html.fromHtml("<small><sub>Client</sub></small><br />" +
                         f_name + " " + l_name));
                 if (!image.equals("")) {
                     Picasso.get().load(image).into(clientImage);
                 }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }

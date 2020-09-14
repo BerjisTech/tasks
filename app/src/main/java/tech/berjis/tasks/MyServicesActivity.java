@@ -2,40 +2,31 @@ package tech.berjis.tasks;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class MyServicesActivity extends AppCompatActivity {
 
-    FirebaseFirestore firestore;
     FirebaseAuth mAuth;
-    FirebaseFirestoreSettings firestoreSettings;
-    private FirestoreRecyclerAdapter<Services, MyServicesActivity.ServicesViewHolder> adapter;
+    DatabaseReference dbRef;
+    List<Services> serviceList;
+    ServiceAdapter serviceAdapter;
     String UID, currency_symbol = "";
     ImageView profile, orders, home, chats, notifications, addTask;
     RecyclerView ordersRecycler;
@@ -50,12 +41,11 @@ public class MyServicesActivity extends AppCompatActivity {
 
     private void init_vars() {
         mAuth = FirebaseAuth.getInstance();
-        firestore = FirebaseFirestore.getInstance();
-        firestoreSettings = new FirebaseFirestoreSettings.Builder()
-                .setPersistenceEnabled(true).build();
-        firestore.setFirestoreSettings(firestoreSettings);
+        dbRef = FirebaseDatabase.getInstance().getReference();
+        dbRef.keepSynced(true);
         UID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
 
+        serviceList = new ArrayList<>();
 
         profile = findViewById(R.id.profile);
         orders = findViewById(R.id.orders);
@@ -66,19 +56,26 @@ public class MyServicesActivity extends AppCompatActivity {
         ordersRecycler = findViewById(R.id.ordersRecycler);
 
         statickOnClicks();
+        loaduserdata();
     }
-
 
     private void loaduserdata() {
         UID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
-        firestore.collection("Users")
-                .document(UID)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        dbRef.child("Users")
+                .child(UID)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        currency_symbol = Objects.requireNonNull(Objects.requireNonNull(documentSnapshot.getData()).get("currency_symbol")).toString();
-                        loadServices();
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String user_type = snapshot.child("user_type").getValue().toString();
+                        if (user_type.equals("tasker")) {
+                            currency_symbol = snapshot.child("currency_symbol").getValue().toString();
+                            loadServices();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
                     }
                 });
     }
@@ -129,99 +126,25 @@ public class MyServicesActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        loaduserdata();
-    }
-
     private void loadServices() {
-        ordersRecycler.setLayoutManager(new LinearLayoutManager(MyServicesActivity.this, RecyclerView.VERTICAL, false));
-        FirestoreRecyclerOptions<Services> options = new FirestoreRecyclerOptions.Builder<Services>()
-                .setQuery(firestore.collection("Services").whereEqualTo("user", UID), Services.class)
-                .build();
-
-        adapter = new FirestoreRecyclerAdapter<Services, MyServicesActivity.ServicesViewHolder>(options) {
-
+        ordersRecycler.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
+        dbRef.child("Services").orderByChild("user").equalTo(UID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            protected void onBindViewHolder(@NonNull MyServicesActivity.ServicesViewHolder ServicesViewHolder, int i, @NonNull Services Services) {
-                ServicesViewHolder.setServices(Services.getService_id(), Services.getCategory(), Services.getLocation(), Services.getPrice(), Services.getRequests(), Services.getText(), Services.getTime(), Services.getUser(), currency_symbol);
-            }
-
-            @NonNull
-            @Override
-            public MyServicesActivity.ServicesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.service, parent, false);
-                return new MyServicesActivity.ServicesViewHolder(view);
-            }
-        };
-        ordersRecycler.setAdapter(adapter);
-        adapter.startListening();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (adapter != null) {
-            adapter.stopListening();
-        }
-    }
-
-    static class ServicesViewHolder extends RecyclerView.ViewHolder {
-        private View view;
-
-        ServicesViewHolder(View itemView) {
-            super(itemView);
-            view = itemView;
-        }
-
-        void setServices(final String Service_id,
-                         final String Category,
-                         final String Location,
-                         final long Price,
-                         final long Requests,
-                         final String Text,
-                         final long Time,
-                         String User,
-                         String currency_symbol) {
-
-            final TextView serviceTitle = view.findViewById(R.id.serviceTitle);
-            final ImageView mainImage = view.findViewById(R.id.mainImage);
-            final TextView servicePrice = view.findViewById(R.id.servicePrice);
-            final TextView serviceDescription = view.findViewById(R.id.serviceDescription);
-
-            serviceTitle.setText(Category);
-            servicePrice.setText(currency_symbol + " " + Price);
-            serviceDescription.setText(Requests + " requests");
-
-            DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
-
-            dbRef.child("ServicesImages").child(Service_id).limitToFirst(1).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.exists()) {
-                        for (DataSnapshot npsnapshot : dataSnapshot.getChildren()) {
-                            Glide.with(itemView.getContext()).load(Objects.requireNonNull(npsnapshot.child("image").getValue()).toString()).thumbnail(0.25f).into(mainImage);
-                        }
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot snap : snapshot.getChildren()) {
+                        Services l = snap.getValue(Services.class);
+                        serviceList.add(l);
                     }
                 }
+                serviceAdapter = new ServiceAdapter(MyServicesActivity.this, serviceList, currency_symbol);
+                ordersRecycler.setAdapter(serviceAdapter);
+            }
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Toast.makeText(itemView.getContext(), "Kuna shida mahali", Toast.LENGTH_SHORT).show();
-                }
-            });
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent s_i = new Intent(itemView.getContext(), MyService.class);
-                    Bundle s_b = new Bundle();
-                    s_b.putString("service", Service_id);
-                    s_i.putExtras(s_b);
-                    itemView.getContext().startActivity(s_i);
-                }
-            });
-        }
+            }
+        });
     }
 }

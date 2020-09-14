@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class FeedActivity extends AppCompatActivity {
+public class ByCategoryActivity extends AppCompatActivity {
 
     DatabaseReference dbRef;
     FirebaseAuth mAuth;
@@ -42,10 +43,10 @@ public class FeedActivity extends AppCompatActivity {
 
     ServiceAdapter serviceAdapter;
     CategoriesAdapter CategoriesAdapter;
-    SwipeRefreshLayout pageRefresh;
 
     RecyclerView categoryRecycler, postsRecycler;
     ImageView search, services, orders, profile, chats, notifications;
+    SwipeRefreshLayout pageRefresh;
     String UID, currency_symbol = "";
     double myLat, myLong;
 
@@ -90,37 +91,37 @@ public class FeedActivity extends AppCompatActivity {
         search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(FeedActivity.this, WhichTaskActivity.class));
+                startActivity(new Intent(ByCategoryActivity.this, WhichTaskActivity.class));
             }
         });
         services.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(FeedActivity.this, MyServicesActivity.class));
+                startActivity(new Intent(ByCategoryActivity.this, MyServicesActivity.class));
             }
         });
         orders.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(FeedActivity.this, MyOrdersActivity.class));
+                startActivity(new Intent(ByCategoryActivity.this, MyOrdersActivity.class));
             }
         });
         profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(FeedActivity.this, ProfileActivity.class));
+                startActivity(new Intent(ByCategoryActivity.this, ProfileActivity.class));
             }
         });
         chats.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(FeedActivity.this, DMsActivity.class));
+                startActivity(new Intent(ByCategoryActivity.this, DMsActivity.class));
             }
         });
         notifications.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(FeedActivity.this, NotificationsActivity.class));
+                startActivity(new Intent(ByCategoryActivity.this, NotificationsActivity.class));
             }
         });
     }
@@ -139,26 +140,6 @@ public class FeedActivity extends AppCompatActivity {
         loadcategories();
     }
 
-    private void pageRefresher() {
-        pageRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                serviceList.clear();
-                loadServices();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        pageRefresh.setRefreshing(false);
-                    }
-                }, 1000);
-            }
-        });
-        pageRefresh.setColorSchemeResources(R.color.colorPrimary,
-                android.R.color.holo_green_dark,
-                android.R.color.holo_orange_dark,
-                android.R.color.holo_blue_dark);
-    }
-
     private void loadcategories() {
         categoryRecycler.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
         dbRef.child("Categories").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -170,7 +151,7 @@ public class FeedActivity extends AppCompatActivity {
                         categoriesList.add(l);
                     }
                 }
-                CategoriesAdapter = new CategoriesAdapter(FeedActivity.this, categoriesList);
+                CategoriesAdapter = new CategoriesAdapter(ByCategoryActivity.this, categoriesList);
                 categoryRecycler.setAdapter(CategoriesAdapter);
             }
 
@@ -192,6 +173,26 @@ public class FeedActivity extends AppCompatActivity {
         dist = rad2deg(dist);
         dist = dist * 60 * 72913.3858 * 2.54 * 0.00001;
         return (dist);
+    }
+
+    private void pageRefresher() {
+        pageRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                serviceList.clear();
+                loadServices();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        pageRefresh.setRefreshing(false);
+                    }
+                }, 1000);
+            }
+        });
+        pageRefresh.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
     }
 
     private double deg2rad(double deg) {
@@ -226,8 +227,12 @@ public class FeedActivity extends AppCompatActivity {
 
     private void loadServices() {
         serviceList.clear();
+        Intent s_i = getIntent();
+        Bundle s_b = s_i.getExtras();
+        String category = s_b.getString("category");
+
         postsRecycler.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
-        dbRef.child("Services").addListenerForSingleValueEvent(new ValueEventListener() {
+        dbRef.child("Services").orderByChild("category").equalTo(category).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
@@ -254,7 +259,7 @@ public class FeedActivity extends AppCompatActivity {
                         }
                     }
                 }
-                serviceAdapter = new ServiceAdapter(FeedActivity.this, serviceList, currency_symbol);
+                serviceAdapter = new ServiceAdapter(ByCategoryActivity.this, serviceList, currency_symbol);
                 postsRecycler.setAdapter(serviceAdapter);
             }
 
@@ -268,7 +273,7 @@ public class FeedActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        FeedActivity.super.finish();
+        ByCategoryActivity.super.finish();
     }
 
     private void getUserArea() {
@@ -287,7 +292,7 @@ public class FeedActivity extends AppCompatActivity {
 
                             myLat = latLng.latitude;
                             myLong = latLng.longitude;
-                            // Toast.makeText(FeedActivity.this, String.valueOf(latLng), Toast.LENGTH_SHORT).show();
+                            // Toast.makeText(ByCategoryActivity.this, String.valueOf(latLng), Toast.LENGTH_SHORT).show();
                             loadWorkers();
                         }
                     }

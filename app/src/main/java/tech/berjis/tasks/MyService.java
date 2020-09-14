@@ -18,11 +18,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,9 +29,7 @@ import ru.tinkoff.scrollingpagerindicator.ScrollingPagerIndicator;
 
 public class MyService extends AppCompatActivity {
 
-    FirebaseFirestore firestore;
     FirebaseAuth mAuth;
-    FirebaseFirestoreSettings firestoreSettings;
     DatabaseReference dbRef;
 
     ViewPager2 imagePager;
@@ -56,10 +49,6 @@ public class MyService extends AppCompatActivity {
 
     private void initVars() {
         mAuth = FirebaseAuth.getInstance();
-        firestore = FirebaseFirestore.getInstance();
-        firestoreSettings = new FirebaseFirestoreSettings.Builder()
-                .setPersistenceEnabled(true).build();
-        firestore.setFirestoreSettings(firestoreSettings);
         dbRef = FirebaseDatabase.getInstance().getReference();
         dbRef.keepSynced(true);
         UID = mAuth.getCurrentUser().getUid();
@@ -173,13 +162,13 @@ public class MyService extends AppCompatActivity {
     }
 
     private void loadOffer(final String serviceID) {
-        firestore.collection("Services").document(serviceID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        dbRef.child("Services").child(serviceID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                String name = Objects.requireNonNull(documentSnapshot.get("category")).toString();
-                String user = Objects.requireNonNull(documentSnapshot.getData().get("user")).toString();
-                String text = Objects.requireNonNull(documentSnapshot.get("text")).toString();
-                String price = Objects.requireNonNull(documentSnapshot.get("price")).toString();
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String name = Objects.requireNonNull(snapshot.child("category").getValue()).toString();
+                String user = Objects.requireNonNull(snapshot.child("user").getValue()).toString();
+                String text = Objects.requireNonNull(snapshot.child("text").getValue()).toString();
+                String price = Objects.requireNonNull(snapshot.child("price").getValue()).toString();
 
                 if (user.equals(UID)) {
                     requestService.setVisibility(View.GONE);
@@ -190,42 +179,62 @@ public class MyService extends AppCompatActivity {
 
                 count(serviceID, user, price, name, text);
             }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
         });
     }
 
     private void count(final String serviceID, final String user, final String price, final String name, final String text) {
-        firestore.collection("Orders").whereEqualTo("service", serviceID).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        dbRef.child("Orders").orderByChild("service").equalTo(serviceID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                long count = queryDocumentSnapshots.size();
-                serviceRequests.setText("Requested "+ count + " times");
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                long count = snapshot.getChildrenCount();
+                serviceRequests.setText("Requested " + count + " times");
                 loadUser(serviceID, user, price, name, text, count);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }
 
     private void loadUser(final String serviceID, final String user, final String price, final String name, final String text, final long requests) {
-        firestore.collection("Users").document(user).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        dbRef.child("Users").child(user).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                String username = documentSnapshot.get("first_name").toString() + " " + documentSnapshot.get("last_name").toString();
-                String currency = documentSnapshot.get("currency_symbol").toString();
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String username = Objects.requireNonNull(snapshot.child("first_name").getValue()).toString() + " " + Objects.requireNonNull(snapshot.child("last_name").getValue()).toString();
+                String currency = Objects.requireNonNull(snapshot.child("currency_symbol").getValue()).toString();
 
                 serviceUser.setText(username);
                 servicePrice.setText("(" + currency + " " + price + ")");
                 staticOnClicks(serviceID, user, price, name, text, requests, currency);
             }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
         });
     }
 
     private void loadMe() {
-        firestore.collection("Users").document(UID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        dbRef.child("Users").child(UID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                String user_type = Objects.requireNonNull(Objects.requireNonNull(documentSnapshot.getData()).get("user_type")).toString();
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String user_type = Objects.requireNonNull(snapshot.child("user_type").getValue()).toString();
                 if (user_type.equals("tasker")) {
                     services.setVisibility(View.VISIBLE);
                 }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }
@@ -239,9 +248,6 @@ public class MyService extends AppCompatActivity {
         parties.add(UID);
         parties.add(user);
 
-        DocumentReference reference = firestore.collection("Orders").document();
-        String requestID = reference.getId();
-
         HashMap<String, Object> request = new HashMap<>();
 
         request.put("time", unixTime);
@@ -250,11 +256,11 @@ public class MyService extends AppCompatActivity {
         request.put("user", UID);
         request.put("currency", currency);
         request.put("status", "pending");
-        request.put("request", requestID);
+        request.put("request", unixTime);
         request.put("parties", parties);
 
 
-        reference.set(request).addOnSuccessListener(new OnSuccessListener<Void>() {
+        dbRef.child("Orders").child("unixTime").setValue(request).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 Intent o_i = new Intent(MyService.this, MyOrder.class);
