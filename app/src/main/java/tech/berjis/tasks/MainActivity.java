@@ -10,6 +10,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,7 +25,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -256,12 +259,39 @@ public class MainActivity extends AppCompatActivity {
                             startActivity(mainActivity);
                             finish();
                         } else {
-                            if (user_type.equals("tasker")) {
-                                Intent mainActivity = new Intent(getApplicationContext(), MyOrdersActivity.class);
-                                startActivity(mainActivity);
-                                finish();
+                            if (snapshot.child("subscription").exists()) {
+                                long today = System.currentTimeMillis() / 1000L;
+                                long nextMonth = Long.parseLong(Objects.requireNonNull(snapshot.child("next_month").getValue()).toString());
+
+
+                                // long dv = today * 1000;// its need to be in milisecond
+                                // Date df = new java.util.Date(dv);
+                                // String vv = new SimpleDateFormat("dd MMMM yyyy").format(df);
+
+                                // long dvs = nextMonth * 1000;// its need to be in milisecond
+                                // Date dfs = new java.util.Date(dvs);
+                                // String vvs = new SimpleDateFormat("dd MMMM yyyy").format(dfs);
+
+                                // Toast.makeText(MainActivity.this, "This month " + vv, Toast.LENGTH_SHORT).show();
+                                // Toast.makeText(MainActivity.this, "Next month " + vvs, Toast.LENGTH_SHORT).show();
+
+                                if (today > nextMonth) {
+                                    Intent mainActivity = new Intent(getApplicationContext(), RenewSubscriptionActivity.class);
+                                    startActivity(mainActivity);
+                                    finish();
+                                } else {
+                                    if (user_type.equals("tasker")) {
+                                        Intent mainActivity = new Intent(getApplicationContext(), MyOrdersActivity.class);
+                                        startActivity(mainActivity);
+                                        finish();
+                                    } else {
+                                        Intent mainActivity = new Intent(getApplicationContext(), WhichTaskActivity.class);
+                                        startActivity(mainActivity);
+                                        finish();
+                                    }
+                                }
                             } else {
-                                Intent mainActivity = new Intent(getApplicationContext(), WhichTaskActivity.class);
+                                Intent mainActivity = new Intent(getApplicationContext(), ChooseSubscriptionActivity.class);
                                 startActivity(mainActivity);
                                 finish();
                             }

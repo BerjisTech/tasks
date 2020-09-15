@@ -141,6 +141,7 @@ public class WhichTaskActivity extends AppCompatActivity {
         final List<String> categories = new ArrayList<>();
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_item, categories);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categories.add("Choose tasker");
         dbRef.child("Categories").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {

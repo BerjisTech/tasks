@@ -1,5 +1,9 @@
 <resources>
-    <string name="app_name">tasks</string>
+    <string name="public_key">FLWPUBK-7e91968abdbf7916012959d7ec34ddaa-X</string>
+    <string name="encryption_key">0505fb5d9d3f6f2b773b837d</string>
+
+
+    <string name="app_name">Mwakazy</string>
     <string name="reply">Reply</string>
     <string name="delete_for_me">Delete for me</string>
     <string name="delete_for_all">Delete for all</string>
