@@ -251,16 +251,16 @@ public class MyService extends AppCompatActivity {
         HashMap<String, Object> request = new HashMap<>();
 
         request.put("time", unixTime);
-        request.put("service", serviceID);
+        request.put("service", String.valueOf(serviceID));
         request.put("seller", user);
         request.put("user", UID);
         request.put("currency", currency);
         request.put("status", "pending");
-        request.put("request", unixTime);
+        request.put("request", String.valueOf(unixTime));
         request.put("parties", parties);
 
 
-        dbRef.child("Orders").child("unixTime").setValue(request).addOnSuccessListener(new OnSuccessListener<Void>() {
+        dbRef.child("Orders").child(String.valueOf(unixTime)).setValue(request).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 Intent o_i = new Intent(MyService.this, MyOrder.class);

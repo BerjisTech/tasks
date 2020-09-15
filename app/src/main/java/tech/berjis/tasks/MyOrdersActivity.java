@@ -105,12 +105,6 @@ public class MyOrdersActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        loadUserData();
-    }
-
     private void loadUserData() {
         UID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
         dbRef.child("Users")
