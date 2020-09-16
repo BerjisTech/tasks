@@ -10,7 +10,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,10 +23,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -280,6 +278,8 @@ public class MainActivity extends AppCompatActivity {
                                     startActivity(mainActivity);
                                     finish();
                                 } else {
+                                    String deviceToken = FirebaseInstanceId.getInstance().getToken();
+                                    dbRef.child("Users").child(UID).child("device").setValue(deviceToken);
                                     if (user_type.equals("tasker")) {
                                         Intent mainActivity = new Intent(getApplicationContext(), MyOrdersActivity.class);
                                         startActivity(mainActivity);

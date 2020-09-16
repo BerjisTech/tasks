@@ -37,7 +37,7 @@ public class WhichTaskActivity extends AppCompatActivity {
     RecyclerView categoryRecycler;
     TextView searchButton;
     String category_name, location;
-    ImageView profile, services, orders;
+    ImageView profile, services, orders, settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +60,7 @@ public class WhichTaskActivity extends AppCompatActivity {
         profile = findViewById(R.id.profile);
         orders = findViewById(R.id.orders);
         services = findViewById(R.id.services);
+        settings = findViewById(R.id.settings);
 
         loadSpinners();
         loadcategories();
@@ -86,6 +87,13 @@ public class WhichTaskActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(WhichTaskActivity.this, MyServicesActivity.class));
+            }
+        });
+
+        settings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(WhichTaskActivity.this, SettingsActivity.class));
             }
         });
 

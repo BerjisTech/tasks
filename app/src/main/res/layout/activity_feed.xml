@@ -78,6 +78,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:src="@drawable/chat"
+                    android:visibility="gone"
                     app:layout_constraintStart_toEndOf="@id/home"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -91,6 +92,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:src="@drawable/notifications"
+                    android:visibility="gone"
                     app:layout_constraintEnd_toStartOf="@id/search"
                     app:layout_constraintTop_toTopOf="parent" />
 

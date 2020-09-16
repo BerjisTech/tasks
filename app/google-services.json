@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "896341479811-sl5k2hr6k0gndlktga8cau3lk0m9h89k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "tech.berjis.tasks",
+            "certificate_hash": "72275d306ddabfc647470109c2fa2d305cbb04cd"
+          }
+        },
+        {
           "client_id": "896341479811-g4ot89kgjft2hkk65jr8ukam481ohher.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

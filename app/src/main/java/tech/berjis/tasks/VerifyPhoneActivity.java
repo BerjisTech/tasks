@@ -59,7 +59,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         String countryCode = intent.getStringExtra("countryCode");
         country = intent.getStringExtra("country");
         country_code = intent.getStringExtra("country_code");
-        Toast.makeText(this, countryCode + mobile, Toast.LENGTH_SHORT).show();
+        // Toast.makeText(this, countryCode + mobile, Toast.LENGTH_SHORT).show();
         sendVerificationCode("+" + countryCode, mobile);
 
 

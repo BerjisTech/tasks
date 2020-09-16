@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import ru.tinkoff.scrollingpagerindicator.ScrollingPagerIndicator;
 
 public class MyService extends AppCompatActivity {
@@ -36,8 +39,9 @@ public class MyService extends AppCompatActivity {
     List<ImageList> imageList;
     ImagePagerAdapter imagePagerAdapter;
     String UID;
-    TextView serviceName, servicePrice, serviceRequests, serviceUser, serviceDescription, requestService;
+    TextView serviceName, servicePrice, serviceRequests, serviceUser, serviceDescription, requestService, pageTitle;
     ImageView profile, services, orders, home, chats, notifications, settings;
+    private APIService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +58,8 @@ public class MyService extends AppCompatActivity {
         UID = mAuth.getCurrentUser().getUid();
         imageList = new ArrayList<>();
 
+        apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
+
         imagePager = findViewById(R.id.imagePager);
         serviceName = findViewById(R.id.serviceName);
         servicePrice = findViewById(R.id.servicePrice);
@@ -69,6 +75,7 @@ public class MyService extends AppCompatActivity {
         home = findViewById(R.id.home);
         notifications = findViewById(R.id.notifications);
         settings = findViewById(R.id.settings);
+        pageTitle = findViewById(R.id.pageTitle);
 
         startPage();
     }
@@ -175,6 +182,7 @@ public class MyService extends AppCompatActivity {
                 }
 
                 serviceName.setText(name);
+                pageTitle.setText(name);
                 serviceDescription.setText(text);
 
                 count(serviceID, user, price, name, text);
@@ -277,9 +285,59 @@ public class MyService extends AppCompatActivity {
                 o_i.putExtras(o_b);
                 startActivity(o_i);
                 requestService.setVisibility(View.GONE);
+                tokenShit(user, name);
             }
         });
 
+    }
+
+    private void tokenShit(final String seller, final String service) {
+        Toast.makeText(this, "Notifying seller", Toast.LENGTH_SHORT).show();
+        dbRef.child("Users").child(seller).addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot
+                                                     dataSnapshot) {
+                        String user_token = Objects.requireNonNull(dataSnapshot.child("device").getValue()).toString();
+                        sendNotifications(seller, user_token, "New Service Request", "You have a new service request.\nService requested: " + service);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError
+                                                    databaseError) {
+                    }
+                });
+    }
+
+    public void sendNotifications(final String seller, final String user_token, final String title, final String message) {
+        Data data = new Data(title, message);
+        NotificationSender sender = new NotificationSender(data, user_token);
+        apiService.sendNotifcation(sender).enqueue(new Callback<MyResponse>() {
+            @Override
+            public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+                if (response.code() == 200) {
+                    assert response.body() != null;
+                    if (response.body().success != 1) {
+                        Toast.makeText(MyService.this, "Failed", Toast.LENGTH_SHORT).show();
+                    } else {
+                        final long unixTime = System.currentTimeMillis() / 1000L;
+                        HashMap<String, Object> notif = new HashMap<>();
+                        notif.put("title", title);
+                        notif.put("message", message);
+                        notif.put("time", unixTime);
+                        notif.put("device", user_token);
+                        notif.put("id", String.valueOf(unixTime));
+
+                        dbRef.child("Notifications").child(seller).child(String.valueOf(unixTime)).setValue(notif);
+                        Toast.makeText(MyService.this, "Seller notified", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MyResponse> call, Throwable t) {
+            }
+        });
     }
 
     private void goHome() {

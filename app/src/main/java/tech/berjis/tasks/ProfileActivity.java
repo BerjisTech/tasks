@@ -45,7 +45,7 @@ public class ProfileActivity extends AppCompatActivity {
     ImageView home, chats, profile, menu;
     CircleImageView dp, addTask;
     EmojiTextView full_name, username;
-    TextView editProfileTxt, activateTasker, createTask;
+    TextView editProfileTxt, activateTasker, activateTaskerText, createTask;
     RecyclerView servicesRecycler;
 
     @Override
@@ -68,6 +68,7 @@ public class ProfileActivity extends AppCompatActivity {
         editProfileTxt = findViewById(R.id.editProfileTxt);
         dp = findViewById(R.id.dp);
         activateTasker = findViewById(R.id.activateTasker);
+        activateTaskerText = findViewById(R.id.activateTaskerText);
         addTask = findViewById(R.id.addTask);
         createTask = findViewById(R.id.createTask);
         servicesRecycler = findViewById(R.id.servicesRecycler);
@@ -107,6 +108,12 @@ public class ProfileActivity extends AppCompatActivity {
                 startActivity(new Intent(ProfileActivity.this, EditProfileActivity.class));
             }
         });
+        addTask.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(ProfileActivity.this, NewServiceActivity.class));
+            }
+        });
         activateTasker.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
@@ -141,6 +148,13 @@ public class ProfileActivity extends AppCompatActivity {
                                                 .show();
                                         createTask.setVisibility(View.VISIBLE);
                                         activateTasker.setVisibility(View.GONE);
+                                        activateTaskerText.setVisibility(View.GONE);
+                                        createTask.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                startActivity(new Intent(ProfileActivity.this, NewServiceActivity.class));
+                                            }
+                                        });
                                     }
                                 });
                             }
@@ -184,6 +198,7 @@ public class ProfileActivity extends AppCompatActivity {
 
                         if (user_type.equals("default")) {
                             activateTasker.setVisibility(View.VISIBLE);
+                            activateTaskerText.setVisibility(View.VISIBLE);
                             servicesRecycler.setVisibility(View.GONE);
                             addTask.setVisibility(View.GONE);
                             createTask.setVisibility(View.GONE);
