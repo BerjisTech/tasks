@@ -18,6 +18,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -129,8 +130,9 @@ public class MyOrdersActivity extends AppCompatActivity {
     }
 
     private void loadOrders() {
+        ordersList.clear();
         ordersRecycler.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
-        dbRef.child("Orders").addListenerForSingleValueEvent(new ValueEventListener() {
+        dbRef.child("Orders").limitToLast(10).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
@@ -141,6 +143,7 @@ public class MyOrdersActivity extends AppCompatActivity {
                         }
                     }
                 }
+                Collections.reverse(ordersList);
                 ordersAdapter = new OrdersAdapter(MyOrdersActivity.this, ordersList, currency_symbol);
                 ordersRecycler.setAdapter(ordersAdapter);
             }

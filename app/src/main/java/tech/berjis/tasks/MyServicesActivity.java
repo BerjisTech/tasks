@@ -18,6 +18,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -127,6 +128,7 @@ public class MyServicesActivity extends AppCompatActivity {
     }
 
     private void loadServices() {
+        serviceList.clear();
         ordersRecycler.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
         dbRef.child("Services").orderByChild("user").equalTo(UID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -137,6 +139,7 @@ public class MyServicesActivity extends AppCompatActivity {
                         serviceList.add(l);
                     }
                 }
+                Collections.reverse(serviceList);
                 serviceAdapter = new ServiceAdapter(MyServicesActivity.this, serviceList, currency_symbol);
                 ordersRecycler.setAdapter(serviceAdapter);
             }

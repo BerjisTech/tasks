@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="tech.berjis.tasks">
-
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
          Google Maps Android API v2, but you must specify either coarse or fine
@@ -30,6 +29,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppCustomTheme.NoActionBar"
         tools:replace="android:icon">
+        <activity android:name=".AllCategoriesActivity"></activity>
+
         <service
             android:name=".MyFireBaseMessagingService"
             android:enabled="true"

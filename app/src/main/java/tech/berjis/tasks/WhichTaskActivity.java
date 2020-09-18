@@ -24,11 +24,13 @@ import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class WhichTaskActivity extends AppCompatActivity {
 
     FirebaseAuth mAuth;
     DatabaseReference dbRef;
+    String UID;
 
     List<Categories> categoriesList;
     CategoriesAdapter CategoriesAdapter;
@@ -65,6 +67,7 @@ public class WhichTaskActivity extends AppCompatActivity {
         loadSpinners();
         loadcategories();
         staticOnClicks();
+        loaduserdata();
     }
 
     private void staticOnClicks() {
@@ -170,6 +173,8 @@ public class WhichTaskActivity extends AppCompatActivity {
 
 
     private void loadcategories() {
+        categoriesList.clear();
+        categoriesList.add(new Categories("All Categories", "drawable://" + R.drawable.plus));
         categoryRecycler.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
         dbRef.child("Categories").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -189,6 +194,41 @@ public class WhichTaskActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void loaduserdata() {
+        UID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
+        dbRef.child("Users")
+                .child(UID)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String user_type = snapshot.child("user_type").getValue().toString();
+                        if (snapshot.child("subscription").exists()) {
+                            long today = System.currentTimeMillis() / 1000L;
+                            long nextMonth = Long.parseLong(Objects.requireNonNull(snapshot.child("next_month").getValue()).toString());
+
+                            if (today > nextMonth) {
+                                Intent mainActivity = new Intent(getApplicationContext(), RenewSubscriptionActivity.class);
+                                startActivity(mainActivity);
+                                finish();
+                            } else {
+                                if (user_type.equals("tasker")) {
+                                    services.setVisibility(View.VISIBLE);
+                                }
+                            }
+                        } else {
+                            Intent mainActivity = new Intent(getApplicationContext(), ChooseSubscriptionActivity.class);
+                            startActivity(mainActivity);
+                            finish();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
     }
 
 }

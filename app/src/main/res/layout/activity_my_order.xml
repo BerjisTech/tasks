@@ -28,7 +28,7 @@
             android:clickable="true"
             android:focusable="true">
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/serviceTitle"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -59,7 +59,7 @@
             android:layout_height="wrap_content"
             android:paddingBottom="50dp">
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/sellerName"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -81,7 +81,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/clientName"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -103,7 +103,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/sellerImage"/>
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/servicePrice"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -115,7 +115,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/clientImage" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/serviceRequests"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -126,7 +126,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/clientImage" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/serviceDescription"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -139,7 +139,7 @@
                 app:layout_constraintTop_toBottomOf="@id/serviceRequests" />
 
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/call"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -162,7 +162,7 @@
 
     </ScrollView>
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/orders"
         android:layout_width="30dp"
         android:layout_height="30dp"
@@ -172,7 +172,7 @@
         app:layout_constraintEnd_toStartOf="@id/services"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/services"
         android:layout_width="30dp"
         android:layout_height="30dp"
@@ -183,7 +183,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/profile"
         android:layout_width="30dp"
         android:layout_height="30dp"

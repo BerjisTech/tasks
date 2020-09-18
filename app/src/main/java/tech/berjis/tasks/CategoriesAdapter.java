@@ -37,19 +37,29 @@ public class CategoriesAdapter extends RecyclerView.Adapter<CategoriesAdapter.Vi
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         final Categories ld = listData.get(position);
 
-        Picasso.get().load(ld.getImage()).into(holder.image);
         holder.name.setText(ld.getName());
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent c_intent = new Intent(holder.itemView.getContext(), ByCategoryActivity.class);
-                Bundle c_bundle = new Bundle();
-                c_bundle.putString("category", ld.getName());
-                c_intent.putExtras(c_bundle);
-                holder.itemView.getContext().startActivity(c_intent);
-            }
-        });
+        if (ld.getName().equals("All Categories")) {
+            Picasso.get().load(R.drawable.plus).into(holder.image);
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    holder.itemView.getContext().startActivity(new Intent(holder.itemView.getContext(), AllCategoriesActivity.class));
+                }
+            });
+        } else {
+            Picasso.get().load(ld.getImage()).into(holder.image);
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent c_intent = new Intent(holder.itemView.getContext(), ByCategoryActivity.class);
+                    Bundle c_bundle = new Bundle();
+                    c_bundle.putString("category", ld.getName());
+                    c_intent.putExtras(c_bundle);
+                    holder.itemView.getContext().startActivity(c_intent);
+                }
+            });
+        }
     }
 
     @Override

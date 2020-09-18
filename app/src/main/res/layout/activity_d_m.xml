@@ -34,7 +34,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/back" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/back"
         android:layout_width="30dp"
         android:layout_height="30dp"
@@ -54,7 +54,7 @@
         app:layout_constraintStart_toEndOf="@+id/back"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/menu"
         android:layout_width="30dp"
         android:layout_height="30dp"
@@ -112,7 +112,7 @@
         app:layout_constraintEnd_toEndOf="@id/send_text_bg"
         app:layout_constraintTop_toTopOf="@id/send_text_bg" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/send"
         android:layout_width="50dp"
         android:layout_height="50dp"

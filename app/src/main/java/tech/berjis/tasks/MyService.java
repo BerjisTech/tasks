@@ -157,7 +157,7 @@ public class MyService extends AppCompatActivity {
                     ScrollingPagerIndicator recyclerIndicator = findViewById(R.id.indicator);
                     recyclerIndicator.attachToPager(imagePager);
                 } else {
-                    Toast.makeText(MyService.this, "Don't Exist", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MyService.this, "This service has no Images", Toast.LENGTH_SHORT).show();
                 }
             }
 

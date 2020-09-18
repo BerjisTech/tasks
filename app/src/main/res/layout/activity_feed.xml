@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="match_parent"
             android:layout_height="190dp"
             android:src="@drawable/classic_top_background"
@@ -41,7 +41,7 @@
                 android:clickable="true"
                 android:focusable="true">
 
-                <TextView
+                <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:clickable="true"
@@ -55,7 +55,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@id/search" />
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/home"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
@@ -68,7 +68,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/chats"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
@@ -82,7 +82,7 @@
                     app:layout_constraintStart_toEndOf="@id/home"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/notifications"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
@@ -96,7 +96,7 @@
                     app:layout_constraintEnd_toStartOf="@id/search"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/search"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
@@ -173,7 +173,7 @@
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/orders"
             android:layout_width="30dp"
             android:layout_height="30dp"
@@ -183,7 +183,7 @@
             app:layout_constraintEnd_toStartOf="@id/services"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/services"
             android:layout_width="30dp"
             android:layout_height="30dp"
@@ -194,7 +194,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/profile"
             android:layout_width="30dp"
             android:layout_height="30dp"
@@ -208,11 +208,26 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/storyLayout"
+        android:id="@+id/loadLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorPrimary"
-        android:visibility="gone">
+        android:background="@color/colorPrimary">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/preload"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/colorWhite"
+            android:src="@drawable/preloader" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:text="Loading Nearby Taskers"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

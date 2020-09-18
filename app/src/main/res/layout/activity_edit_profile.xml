@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".EditProfileActivity">
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/textView11"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -19,7 +19,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/back" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/back"
         android:layout_width="30dp"
         android:layout_height="30dp"
@@ -29,7 +29,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/updateProfile"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
@@ -78,7 +78,7 @@
                 app:layout_constraintStart_toStartOf="@+id/dp"
                 app:layout_constraintTop_toTopOf="@+id/dp" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/userNameHint"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -104,7 +104,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/userNameHint" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/firstNameHint"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -128,7 +128,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/firstNameHint" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
@@ -151,7 +151,7 @@
                 app:layout_constraintStart_toEndOf="@+id/half"
                 app:layout_constraintTop_toBottomOf="@id/firstNameHint" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/userEmailHint"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -176,7 +176,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/userEmailHint" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/userDescriptionHint"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -202,7 +202,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/userDescriptionHint" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -213,7 +213,7 @@
                 app:layout_constraintEnd_toStartOf="@id/half"
                 app:layout_constraintTop_toBottomOf="@id/userDescription" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"

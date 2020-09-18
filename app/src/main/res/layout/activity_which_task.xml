@@ -34,7 +34,7 @@
                 android:clickable="true"
                 android:focusable="true">
 
-                <TextView
+                <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:clickable="true"
@@ -48,7 +48,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@id/settings" />
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/home"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
@@ -61,7 +61,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/chats"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
@@ -75,7 +75,7 @@
                     app:layout_constraintStart_toEndOf="@id/home"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/notifications"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
@@ -89,7 +89,7 @@
                     app:layout_constraintEnd_toStartOf="@id/settings"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/settings"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
@@ -105,7 +105,7 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="190dp"
@@ -139,7 +139,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/emptyView" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/refineText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -160,7 +160,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/categoryRecycler" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/categoryText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -197,7 +197,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/refineText" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/searchButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -216,7 +216,7 @@
             app:layout_constraintStart_toStartOf="parent" />
 
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/orders"
             android:layout_width="30dp"
             android:layout_height="30dp"
@@ -226,7 +226,7 @@
             app:layout_constraintEnd_toStartOf="@id/services"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/services"
             android:layout_width="30dp"
             android:layout_height="30dp"
@@ -237,7 +237,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/profile"
             android:layout_width="30dp"
             android:layout_height="30dp"
@@ -250,7 +250,7 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/preload"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -1,37 +1,56 @@
 package tech.berjis.tasks;
 
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
-import android.os.Build;
+import android.content.Intent;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 public class MyFireBaseMessagingService extends FirebaseMessagingService {
-    String title, message;
+    private static final String TAG = "FirebaseMessagingServce";
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
-        super.onMessageReceived(remoteMessage);
-        title = remoteMessage.getData().get("Title");
-        message = remoteMessage.getData().get("Message");
-        NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(getApplicationContext())
-                        .setPriority(4)
-                        .setSmallIcon(R.drawable.logo)
-                        .setContentTitle(title)
-                        .setContentText(message)
-                        .setVibrate(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400})
-                        .setColorized(true)
-                        .setColor(getColor(R.color.colorPrimary));
-        NotificationManager manager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.notify(0, builder.build());
+        String notificationTitle = null, notificationBody = null;
+
+        // Check if message contains a notification payload
+        if (remoteMessage.getNotification() != null) {
+            Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
+            notificationTitle = remoteMessage.getNotification().getTitle();
+            notificationBody = remoteMessage.getNotification().getBody();
+        }
+
+        // If you want to fire a local notification (that notification on the top of the phone screen)
+        // you should fire it from here
+        sendLocalNotification(notificationTitle, notificationBody);
+    }
+
+    private void sendLocalNotification(String notificationTitle, String notificationBody) {
+        Intent intent = new Intent(this, MyOrdersActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
+                PendingIntent.FLAG_ONE_SHOT);
+
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+                .setAutoCancel(true)   //Automatically delete the notification
+                .setSmallIcon(R.drawable.logo) //Notification icon
+                .setContentIntent(pendingIntent)
+                .setContentTitle(notificationTitle)
+                .setContentText(notificationBody)
+                .setSound(defaultSoundUri);
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        notificationManager.notify(1234, notificationBuilder.build());
     }
 }
 
