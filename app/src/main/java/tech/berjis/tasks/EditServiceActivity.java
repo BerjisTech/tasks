@@ -2,17 +2,13 @@ package tech.berjis.tasks;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -48,15 +44,15 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
-import com.toptoche.searchablespinnerlibrary.SearchableSpinner;
 import com.vanniktech.emoji.EmojiEditText;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
-public class NewServiceActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class EditServiceActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     DatabaseReference dbRef;
     FirebaseAuth mAuth;
@@ -65,7 +61,7 @@ public class NewServiceActivity extends AppCompatActivity implements OnMapReadyC
     final int REQUEST_LOCATION = 1;
     private FusedLocationProviderClient fusedLocationClient;
 
-    TextView newImage, saveButton;
+    TextView newImage, saveButton, categorySpinner;
     ViewPager2 imagePager;
     EmojiEditText serviceText;
 
@@ -76,7 +72,6 @@ public class NewServiceActivity extends AppCompatActivity implements OnMapReadyC
     Uri filePath;
     String UID, serviceID = "", hasImage = "";
 
-    SearchableSpinner categorySpinner;
     EditText price;
     String category_name = "";
     ImageView home, chats, notifications, settings;
@@ -87,7 +82,7 @@ public class NewServiceActivity extends AppCompatActivity implements OnMapReadyC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_service);
+        setContentView(R.layout.activity_edit_service);
 
     }
 
@@ -111,9 +106,6 @@ public class NewServiceActivity extends AppCompatActivity implements OnMapReadyC
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        long unixTime = System.currentTimeMillis() / 1000L;
-        serviceID = UID + "_" + unixTime;
-
         imageList = new ArrayList<>();
 
         imagePager = findViewById(R.id.imagePager);
@@ -133,26 +125,51 @@ public class NewServiceActivity extends AppCompatActivity implements OnMapReadyC
         price = findViewById(R.id.price);
         selectLocation = findViewById(R.id.selectLocation);
 
-        loadSpinners();
+        Intent s_i = getIntent();
+        Bundle s_b = s_i.getExtras();
+        assert s_b != null;
+        serviceID = s_b.getString("service");
+
         staticOnClicks();
-        loadImages();
+        loadService();
         getUserArea();
     }
 
-    private void loadSpinners() {
-        final List<String> categories = new ArrayList<>();
-        final ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_item, categories);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        categories.add("Select Category");
-        dbRef.child("Categories").addListenerForSingleValueEvent(new ValueEventListener() {
+    private void loadService() {
+        dbRef.child("Services").child(serviceID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot areaSnapshot : snapshot.getChildren()) {
-                    String subject = areaSnapshot.child("name").getValue(String.class);
-                    categories.add(subject);
-                }
-                adapter.notifyDataSetChanged();
-                categorySpinner.setAdapter(adapter);
+                String service = Objects.requireNonNull(snapshot.child("category").getValue()).toString();
+                double lat = Double.parseDouble(Objects.requireNonNull(snapshot.child("lat").getValue()).toString());
+                double lng = Double.parseDouble(Objects.requireNonNull(snapshot.child("long").getValue()).toString());
+                long bei = Long.parseLong(Objects.requireNonNull(snapshot.child("price").getValue()).toString());
+                String text = Objects.requireNonNull(snapshot.child("category").getValue()).toString();
+
+                LatLng nairobi = new LatLng(lat, lng);
+                mMap.clear();
+                mMap.addMarker(new MarkerOptions()
+                        .position(nairobi)
+                        .title("Where I'm at"));
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(nairobi));
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(15F));
+                mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                    @Override
+                    public void onMapClick(LatLng latLng) {
+                        myLat = latLng.latitude;
+                        myLong = latLng.longitude;
+                        Toast.makeText(EditServiceActivity.this, myLat + "," + myLong, Toast.LENGTH_SHORT).show();
+                        mMap.clear();
+                        mMap.addMarker(new MarkerOptions()
+                                .position(latLng)
+                                .title("Nairobi"));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                        mMap.animateCamera(CameraUpdateFactory.zoomTo(15F));
+                    }
+                });
+                categorySpinner.setText(service);
+                price.setText(String.valueOf(bei));
+                serviceText.setText(text);
+                loadImages();
             }
 
             @Override
@@ -176,44 +193,28 @@ public class NewServiceActivity extends AppCompatActivity implements OnMapReadyC
             }
         });
 
-        categorySpinner.setTitle("Choose category");
-        categorySpinner.setPositiveButton("Cancel");
-        categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position > 0) {
-                    category_name = categorySpinner.getSelectedItem().toString();
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
         settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(NewServiceActivity.this, SettingsActivity.class));
+                startActivity(new Intent(EditServiceActivity.this, SettingsActivity.class));
             }
         });
         chats.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(NewServiceActivity.this, DMsActivity.class));
+                startActivity(new Intent(EditServiceActivity.this, DMsActivity.class));
             }
         });
         notifications.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(NewServiceActivity.this, NotificationsActivity.class));
+                startActivity(new Intent(EditServiceActivity.this, NotificationsActivity.class));
             }
         });
         home.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Intent c_intent = new Intent(NewServiceActivity.this, FeedActivity.class);
+                final Intent c_intent = new Intent(EditServiceActivity.this, FeedActivity.class);
                 Bundle c_bundle = new Bundle();
                 c_bundle.putString("category", "");
                 c_bundle.putString("location", "");
@@ -243,7 +244,7 @@ public class NewServiceActivity extends AppCompatActivity implements OnMapReadyC
                         imageList.add(l);
                     }
                     Collections.reverse(imageList);
-                    imagePagerAdapter = new ImagePagerAdapter(NewServiceActivity.this, imageList, "new_service");
+                    imagePagerAdapter = new ImagePagerAdapter(EditServiceActivity.this, imageList, "new_service");
                     imagePagerAdapter.notifyDataSetChanged();
                     imagePager.setAdapter(imagePagerAdapter);
                 }
@@ -326,7 +327,7 @@ public class NewServiceActivity extends AppCompatActivity implements OnMapReadyC
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             progressDialog.dismiss();
-                            Toast.makeText(NewServiceActivity.this, "Failed " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EditServiceActivity.this, "Failed " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     })
                     .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
@@ -344,42 +345,25 @@ public class NewServiceActivity extends AppCompatActivity implements OnMapReadyC
 
     private void serviceText() {
 
-        if (category_name.equals("")) {
-            new AlertDialog
-                    .Builder(this)
-                    .setMessage("You need to specify what you're offering")
-                    .setNegativeButton("Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                        }
-                    })
-                    .show();
-            return;
-        }
-
         String text = serviceText.getText().toString();
         String bei = price.getText().toString();
         long unixTime = System.currentTimeMillis() / 1000L;
 
-        Toast.makeText(this, "Service succesfully published", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Service successfully published", Toast.LENGTH_SHORT).show();
 
         HashMap<String, Object> user = new HashMap<>();
 
         user.put("text", text);
-        user.put("category", category_name);
         user.put("lat", myLat);
         user.put("long", myLong);
         user.put("price", Long.parseLong(bei));
-        user.put("service_id", serviceID);
-        user.put("user", UID);
         user.put("time", unixTime);
         user.put("requests", 0);
 
-        dbRef.child("Services").child(serviceID).setValue(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+        dbRef.child("Services").child(serviceID).updateChildren(user).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                NewServiceActivity.super.finish();
+                EditServiceActivity.super.finish();
             }
         });
 
@@ -400,7 +384,7 @@ public class NewServiceActivity extends AppCompatActivity implements OnMapReadyC
             public void onMapClick(LatLng latLng) {
                 myLat = latLng.latitude;
                 myLong = latLng.longitude;
-                Toast.makeText(NewServiceActivity.this, myLat + "," + myLong, Toast.LENGTH_SHORT).show();
+                Toast.makeText(EditServiceActivity.this, myLat + "," + myLong, Toast.LENGTH_SHORT).show();
                 mMap.clear();
                 mMap.addMarker(new MarkerOptions()
                         .position(latLng)
@@ -427,12 +411,12 @@ public class NewServiceActivity extends AppCompatActivity implements OnMapReadyC
                             mMap.clear();
                             mMap.addMarker(new MarkerOptions()
                                     .position(latLng)
-                                    .title("My Location"));
+                                    .title("Where I'm at"));
                             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                             mMap.animateCamera(CameraUpdateFactory.zoomTo(15F));
                             myLat = latLng.latitude;
                             myLong = latLng.longitude;
-                            // Toast.makeText(NewServiceActivity.this, String.valueOf(latLng), Toast.LENGTH_SHORT).show();
+                            // Toast.makeText(EditServiceActivity.this, String.valueOf(latLng), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

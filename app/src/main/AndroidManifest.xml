@@ -29,7 +29,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppCustomTheme.NoActionBar"
         tools:replace="android:icon">
-        <activity android:name=".AllCategoriesActivity"></activity>
+        <activity android:name=".EditServiceActivity"></activity>
+        <activity android:name=".AllCategoriesActivity" />
 
         <service
             android:name=".MyFireBaseMessagingService"

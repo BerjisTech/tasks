@@ -8,12 +8,10 @@
     tools:context=".WhichTaskActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/mainLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/cardView"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginLeft="20dp"
@@ -106,7 +104,6 @@
         </androidx.cardview.widget.CardView>
 
         <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="190dp"
             android:src="@drawable/classic_top_background"
@@ -115,7 +112,6 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <View
-            android:id="@+id/view"
             android:layout_width="0.001dp"
             android:layout_height="0.001dp"
             app:layout_constraintBottom_toBottomOf="parent"

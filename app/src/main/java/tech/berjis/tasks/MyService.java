@@ -18,6 +18,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -99,12 +100,6 @@ public class MyService extends AppCompatActivity {
                 startActivity(new Intent(MyService.this, MyOrdersActivity.class));
             }
         });
-        settings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MyService.this, SettingsActivity.class));
-            }
-        });
         chats.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -129,6 +124,27 @@ public class MyService extends AppCompatActivity {
                 requestService(serviceID, user, price, name, text, requests, currency);
             }
         });
+        if (UID.equals(user)) {
+            Picasso.get().load(R.drawable.edit).into(settings);
+            settings.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent s_i = new Intent(MyService.this, EditServiceActivity.class);
+                    Bundle s_b = new Bundle();
+                    s_b.putString("service", serviceID);
+                    s_i.putExtras(s_b);
+                    startActivity(s_i);
+                }
+            });
+
+        } else {
+            settings.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(MyService.this, SettingsActivity.class));
+                }
+            });
+        }
     }
 
     private void startPage() {

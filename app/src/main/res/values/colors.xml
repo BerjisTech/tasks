@@ -4,7 +4,6 @@
     <color name="colorAccent">#FBA804</color>
     <color name="colorPrimary">#27337D</color>
     <color name="colorPrimaryDark">#212B66</color>
-    <color name="colorPrimaryOrange">#FF9700</color>
 
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorCrimson">#EEEEEE</color>
@@ -12,7 +11,6 @@
     <color name="greyTick">#666666</color>
     <color name="blueTick">#6666FF</color>
     <color name="cancelled">#ffbb33</color>
-    <color name="danger">#CE0219</color>
 
     <!-- colors for button style -->
 
