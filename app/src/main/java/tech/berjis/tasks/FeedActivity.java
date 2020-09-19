@@ -224,7 +224,6 @@ public class FeedActivity extends AppCompatActivity {
                         categoriesList.add(l);
                     }
                 }
-                Collections.shuffle(categoriesList);
                 CategoriesAdapter = new CategoriesAdapter(FeedActivity.this, categoriesList);
                 categoryRecycler.setAdapter(CategoriesAdapter);
             }
@@ -364,7 +363,7 @@ public class FeedActivity extends AppCompatActivity {
                                 loadLayout.setVisibility(View.GONE);
                                 myLat = latLng.latitude;
                                 myLong = latLng.longitude;
-                                Toast.makeText(FeedActivity.this, String.valueOf(latLng), Toast.LENGTH_SHORT).show();
+                                // Toast.makeText(FeedActivity.this, String.valueOf(latLng), Toast.LENGTH_SHORT).show();
                                 loadWorkers();
                             }
                         } else {

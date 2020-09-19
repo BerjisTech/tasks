@@ -367,7 +367,7 @@ public class ByCategoryActivity extends AppCompatActivity {
                                 loadLayout.setVisibility(View.GONE);
                                 myLat = latLng.latitude;
                                 myLong = latLng.longitude;
-                                Toast.makeText(ByCategoryActivity.this, String.valueOf(latLng), Toast.LENGTH_SHORT).show();
+                                // Toast.makeText(ByCategoryActivity.this, String.valueOf(latLng), Toast.LENGTH_SHORT).show();
                                 loadWorkers();
                             }
                         } else {

@@ -40,7 +40,7 @@ public class CategoriesAdapter extends RecyclerView.Adapter<CategoriesAdapter.Vi
         holder.name.setText(ld.getName());
 
         if (ld.getName().equals("All Categories")) {
-            Picasso.get().load(R.drawable.plus).into(holder.image);
+            Picasso.get().load(R.drawable.categories).into(holder.image);
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
